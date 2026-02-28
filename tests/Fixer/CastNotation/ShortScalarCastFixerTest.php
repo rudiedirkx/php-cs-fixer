@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\CastNotation\ShortScalarCastFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\CastNotation\ShortScalarCastFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class ShortScalarCastFixerTest extends AbstractFixerTestCase
 {
@@ -31,6 +35,9 @@ final class ShortScalarCastFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         foreach (['boolean' => 'bool', 'integer' => 'int', 'double' => 'float', 'binary' => 'string'] as $from => $to) {
@@ -40,13 +47,13 @@ final class ShortScalarCastFixerTest extends AbstractFixerTestCase
         $types = ['string', 'array', 'object'];
 
         foreach ($types as $cast) {
-            yield [sprintf('<?php $b=(%s) $d;', $cast)];
+            yield [\sprintf('<?php $b=(%s) $d;', $cast)];
 
-            yield [sprintf('<?php $b=( %s ) $d;', $cast)];
+            yield [\sprintf('<?php $b=( %s ) $d;', $cast)];
 
-            yield [sprintf('<?php $b=(%s ) $d;', ucfirst($cast))];
+            yield [\sprintf('<?php $b=(%s ) $d;', ucfirst($cast))];
 
-            yield [sprintf('<?php $b=(%s ) $d;', strtoupper($cast))];
+            yield [\sprintf('<?php $b=(%s ) $d;', strtoupper($cast))];
         }
     }
 
@@ -61,7 +68,7 @@ final class ShortScalarCastFixerTest extends AbstractFixerTestCase
     }
 
     /**
-     * @return iterable<array{string}>
+     * @return iterable<int, array{string}>
      */
     public static function provideFixPre80Cases(): iterable
     {
@@ -72,27 +79,7 @@ final class ShortScalarCastFixerTest extends AbstractFixerTestCase
         yield ['<?php $b=(Unset ) $d;'];
 
         yield ['<?php $b=(UNSET ) $d;'];
-    }
 
-    /**
-     * @dataProvider provideFix74DeprecatedCases
-     *
-     * @group legacy
-     *
-     * @requires PHP <8.0
-     */
-    public function testFix74Deprecated(string $expected, ?string $input = null): void
-    {
-        $this->expectDeprecation('The (real) cast is deprecated, use (float) instead');
-
-        $this->doTest($expected, $input);
-    }
-
-    /**
-     * @return iterable<array{0: non-empty-string, 1?: non-empty-string}>
-     */
-    public static function provideFix74DeprecatedCases(): iterable
-    {
         yield from self::createCasesFor('real', 'float');
     }
 
@@ -102,28 +89,28 @@ final class ShortScalarCastFixerTest extends AbstractFixerTestCase
     private static function createCasesFor(string $from, string $to): iterable
     {
         yield [
-            sprintf('<?php echo ( %s  )$a;', $to),
-            sprintf('<?php echo ( %s  )$a;', $from),
+            \sprintf('<?php echo ( %s  )$a;', $to),
+            \sprintf('<?php echo ( %s  )$a;', $from),
         ];
 
         yield [
-            sprintf('<?php $b=(%s) $d;', $to),
-            sprintf('<?php $b=(%s) $d;', $from),
+            \sprintf('<?php $b=(%s) $d;', $to),
+            \sprintf('<?php $b=(%s) $d;', $from),
         ];
 
         yield [
-            sprintf('<?php $b= (%s)$d;', $to),
-            sprintf('<?php $b= (%s)$d;', strtoupper($from)),
+            \sprintf('<?php $b= (%s)$d;', $to),
+            \sprintf('<?php $b= (%s)$d;', strtoupper($from)),
         ];
 
         yield [
-            sprintf('<?php $b=( %s) $d;', $to),
-            sprintf('<?php $b=( %s) $d;', ucfirst($from)),
+            \sprintf('<?php $b=( %s) $d;', $to),
+            \sprintf('<?php $b=( %s) $d;', ucfirst($from)),
         ];
 
         yield [
-            sprintf('<?php $b=(%s ) $d;', $to),
-            sprintf('<?php $b=(%s ) $d;', ucfirst($from)),
+            \sprintf('<?php $b=(%s ) $d;', $to),
+            \sprintf('<?php $b=(%s ) $d;', ucfirst($from)),
         ];
     }
 }

@@ -22,6 +22,8 @@ use PhpCsFixer\Tokenizer\Tokens;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Analyzer\SwitchAnalyzer
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class SwitchAnalyzerTest extends TestCase
 {
@@ -38,13 +40,13 @@ final class SwitchAnalyzerTest extends TestCase
             self::assertSame(
                 \in_array($index, $indices, true),
                 SwitchAnalyzer::belongsToSwitch($tokens, $index),
-                sprintf('Index %d failed check.', $index)
+                \sprintf('Index %d failed check.', $index),
             );
         }
     }
 
     /**
-     * @return iterable<array{string, list<int>}>
+     * @return iterable<string, array{string, list<int>}>
      */
     public static function provideColonCases(): iterable
     {
@@ -104,7 +106,7 @@ final class SwitchAnalyzerTest extends TestCase
 
         self::assertSame(
             $tokensWithEmpty->count(),
-            $tokensWithoutEmpty->count() + 1
+            $tokensWithoutEmpty->count() + 1,
         );
 
         self::assertTrue(SwitchAnalyzer::belongsToSwitch($tokensWithEmpty, 12));

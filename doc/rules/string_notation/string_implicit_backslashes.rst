@@ -23,6 +23,15 @@ ensure that all backslashes are escaped. Both single and double backslashes are
 allowed in single-quoted strings, so the purpose in this context is mainly to
 have a uniformed way to have them written all over the codebase.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``double_quoted``,
+``heredoc``, ``single_quoted``.
+
 Configuration
 -------------
 
@@ -144,10 +153,7 @@ Rule sets
 
 The rule is part of the following rule set:
 
-- `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ with config:
-
-  ``['single_quoted' => 'ignore']``
-
+- `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_
 
 References
 ----------

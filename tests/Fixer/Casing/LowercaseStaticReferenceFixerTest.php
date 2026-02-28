@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\Casing;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Kuba Werłos <werlos@gmail.com>
- *
  * @covers \PhpCsFixer\Fixer\Casing\LowercaseStaticReferenceFixer
  *
  * @internal
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Casing\LowercaseStaticReferenceFixer>
+ *
+ * @author Kuba Werłos <werlos@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class LowercaseStaticReferenceFixerTest extends AbstractFixerTestCase
 {
@@ -33,6 +37,9 @@ final class LowercaseStaticReferenceFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield [
@@ -247,6 +254,41 @@ final class LowercaseStaticReferenceFixerTest extends AbstractFixerTestCase
                     }
                 }',
         ];
+
+        yield [
+            <<<'PHP'
+                <?php
+                class Foo {
+                    public    self $a;
+                    protected self $b;
+                    private   self $c;
+                }
+                PHP,
+            <<<'PHP'
+                <?php
+                class Foo {
+                    public    SELF $a;
+                    protected SELF $b;
+                    private   SELF $c;
+                }
+                PHP,
+        ];
+
+        yield [
+            <<<'PHP'
+                <?php
+                define("SELF", "foo");
+                define("PARENT", "bar");
+                bar(SELF);
+                echo PARENT;
+                class Foo {
+                    public static function f()
+                    {
+                        return SELF;
+                    }
+                }
+                PHP,
+        ];
     }
 
     /**
@@ -259,6 +301,9 @@ final class LowercaseStaticReferenceFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFix80Cases(): iterable
     {
         yield ['<?php $foo?->Self();'];
@@ -317,15 +362,32 @@ class Foo
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{string}>
+     */
     public static function provideFix81Cases(): iterable
     {
         yield [
             '<?php class A { final const PARENT = 42; }',
         ];
 
-        yield [
-            '<?php enum Foo: string { case PARENT = \'parent\'; }',
-        ];
+        yield [<<<'PHP'
+            <?php enum Foo: string
+            {
+                case SELF = 'self';
+                case STATIC = 'static';
+                case PARENT = 'parent';
+            }
+            PHP];
+
+        yield [<<<'PHP'
+            <?php enum Foo
+            {
+                case SELF;
+                case STATIC;
+                case PARENT;
+            }
+            PHP];
     }
 
     /**
@@ -339,7 +401,7 @@ class Foo
     }
 
     /**
-     * @return iterable<array{0: string, 1?: null|string}>
+     * @return iterable<int, array{0: string, 1?: null|string}>
      */
     public static function provideFix83Cases(): iterable
     {

@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\FunctionNotation;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Gregor Harlan
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\FunctionNotation\UseArrowFunctionsFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\FunctionNotation\UseArrowFunctionsFixer>
+ *
+ * @author Gregor Harlan
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
 {
@@ -33,6 +37,9 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield [
@@ -73,7 +80,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                     foo(1, function (int $a, Foo $b) use ($c, $d) {
                         return bar($a, $c);
                     }, 2);
-                INPUT
+                INPUT,
         ];
 
         yield [
@@ -90,7 +97,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
 
 
                     });
-                INPUT
+                INPUT,
         ];
 
         yield [
@@ -105,7 +112,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                             return $a + 1;
                         };
                     });
-                INPUT
+                INPUT,
         ];
 
         yield [
@@ -114,7 +121,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                     foo(function () {// comment
                         return 1;
                     });
-                EXPECTED
+                EXPECTED,
         ];
 
         yield [
@@ -124,7 +131,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                         // comment
                         return 1;
                     });
-                EXPECTED
+                EXPECTED,
         ];
 
         yield [
@@ -133,7 +140,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                     foo(function () {
                         return 1; // comment
                     });
-                EXPECTED
+                EXPECTED,
         ];
 
         yield [
@@ -143,21 +150,33 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                         return 1;
                         // comment
                     });
-                EXPECTED
+                EXPECTED,
         ];
 
         yield [
-            <<<'EXPECTED'
+            <<<'PHP'
+                <?php
+                    foo(fn () =>
+                            1);
+                PHP,
+            <<<'PHP'
                 <?php
                     foo(function () {
                         return
                             1;
                     });
-                EXPECTED
+                PHP,
         ];
 
         yield [
-            <<<'EXPECTED'
+            <<<'PHP'
+                <?php
+                    $func = fn (
+                        $a,
+                        $b
+                    ) => 1;
+                PHP,
+            <<<'PHP'
                 <?php
                     $func = function (
                         $a,
@@ -165,7 +184,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                     ) {
                         return 1;
                     };
-                EXPECTED
+                PHP,
         ];
 
         yield [
@@ -176,7 +195,7 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
                             foo();
                         };
                     };
-                EXPECTED
+                EXPECTED,
         ];
 
         yield [
@@ -192,6 +211,131 @@ final class UseArrowFunctionsFixerTest extends AbstractFixerTestCase
         yield [
             '<?php $testDummy = fn () => null/* foo */;',
             '<?php $testDummy = function () { return/* foo */; };',
+        ];
+
+        yield [
+            <<<'PHP'
+                <?php return fn () => [
+                        CONST_A,
+                        CONST_B,
+                    ];
+                PHP,
+            <<<'PHP'
+                <?php return function () {
+                    return [
+                        CONST_A,
+                        CONST_B,
+                    ];
+                };
+                PHP,
+        ];
+
+        yield [
+            '<?php
+            foo(
+                fn () => 42
+                        '.'
+            );',
+            '<?php
+            foo(
+                function () {
+                    return 42
+                        ;
+                }
+            );',
+        ];
+
+        yield 'do not convert when closure with use() includes external file' => [
+            '<?php
+$load = \Closure::bind(static function ($path, $env) use ($container, $loader, $resource, $type) {
+    return include $path;
+}, null, null);',
+        ];
+
+        yield 'do not convert when closure with use() includes_once external file' => [
+            '<?php
+$load = function ($path) use ($config) {
+    return include_once $path;
+};',
+        ];
+
+        yield 'do not convert when closure with use() requires external file' => [
+            '<?php
+$load = function ($path) use ($data) {
+    return require $path;
+};',
+        ];
+
+        yield 'do not convert when closure with use() requires_once external file' => [
+            '<?php
+$load = function ($path) use ($settings) {
+    return require_once $path;
+};',
+        ];
+
+        yield 'convert when closure without use() includes external file' => [
+            '<?php
+$load = fn ($path) => include $path;',
+            '<?php
+$load = function ($path) {
+    return include $path;
+};',
+        ];
+
+        yield 'convert when closure with use() does not include external file' => [
+            '<?php
+$load = fn ($path) => $data[$path];',
+            '<?php
+$load = function ($path) use ($data) {
+    return $data[$path];
+};',
+        ];
+    }
+
+    /**
+     * @dataProvider provideFix85Cases
+     *
+     * @requires PHP 8.5
+     */
+    public function testFix85(string $expected, ?string $input = null): void
+    {
+        $this->doTest($expected, $input);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1?: string}>
+     */
+    public static function provideFix85Cases(): iterable
+    {
+        yield 'do not convert closure in attribute' => [
+            <<<'PHP'
+                <?php
+                class Foo {
+                    function f1() {
+                        return fn (int $x): int => 100 - $x;
+                    }
+
+                    #[Bar(callback: static function () { return true; })]
+                    #[Baz(callback: static function (int $i): int { return $i + 100; })]
+                    function f2() {
+                        return static fn (int $x, int $y): int => 2 * $x + 3 * $y;
+                    }
+                }
+                PHP,
+            <<<'PHP'
+                <?php
+                class Foo {
+                    function f1() {
+                        return function (int $x): int { return 100 - $x; };
+                    }
+
+                    #[Bar(callback: static function () { return true; })]
+                    #[Baz(callback: static function (int $i): int { return $i + 100; })]
+                    function f2() {
+                        return static function (int $x, int $y): int { return 2 * $x + 3 * $y; };
+                    }
+                }
+                PHP,
         ];
     }
 }

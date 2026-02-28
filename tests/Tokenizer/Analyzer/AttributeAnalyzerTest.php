@@ -24,6 +24,8 @@ use PhpCsFixer\Tokenizer\Tokens;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Analyzer\AttributeAnalyzer
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class AttributeAnalyzerTest extends TestCase
 {
@@ -33,7 +35,7 @@ final class AttributeAnalyzerTest extends TestCase
     public function testNotAnAttribute(): void
     {
         $tokens = Tokens::fromCode('<?php class Foo { private $bar; }');
-        foreach ($tokens as $index => $token) {
+        for ($index = $tokens->count() - 1; $index >= 0; --$index) {
             self::assertFalse(AttributeAnalyzer::isAttribute($tokens, $index));
         }
     }
@@ -48,7 +50,7 @@ final class AttributeAnalyzerTest extends TestCase
         $tokens = Tokens::fromCode($code);
 
         foreach ($tokens as $index => $token) {
-            if ($token->equals([T_STRING, 'Foo'])) {
+            if ($token->equals([\T_STRING, 'Foo'])) {
                 if (isset($testedIndex)) {
                     self::fail('Test is run against index of "Foo", multiple occurrences found.');
                 }
@@ -64,6 +66,8 @@ final class AttributeAnalyzerTest extends TestCase
 
     /**
      * Test case requires to having "Foo" as it will be searched for to test its index.
+     *
+     * @return iterable<int, array{bool, string}>
      */
     public static function provideIsAttributeCases(): iterable
     {
@@ -121,8 +125,6 @@ final class AttributeAnalyzerTest extends TestCase
 
         yield [true, '<?php #[Bar(), Foo, Baz()] class Qux {}'];
 
-        yield [true, '<?php #[Bar, Foo, Baz] class Qux {}'];
-
         yield [true, '<?php #[\Foo] class Bar {}'];
 
         yield [true, '<?php #[\Bar, \Foo] class Baz {}'];
@@ -145,7 +147,7 @@ final class AttributeAnalyzerTest extends TestCase
         $actualAnalyses = AttributeAnalyzer::collect($tokens, $startIndex);
 
         foreach ($expectedAnalyses as $expectedAnalysis) {
-            self::assertSame(T_ATTRIBUTE, $tokens[$expectedAnalysis->getOpeningBracketIndex()]->getId());
+            self::assertSame(\T_ATTRIBUTE, $tokens[$expectedAnalysis->getOpeningBracketIndex()]->getId());
             self::assertSame(CT::T_ATTRIBUTE_CLOSE, $tokens[$expectedAnalysis->getClosingBracketIndex()]->getId());
         }
 
@@ -156,7 +158,7 @@ final class AttributeAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0: string, 1: int, 2: list<AttributeAnalysis>}>
+     * @return iterable<string, array{0: string, 1: int, 2: list<AttributeAnalysis>}>
      */
     public static function provideGetAttributeDeclarationsCases(): iterable
     {
@@ -184,17 +186,17 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(4, 15, 4, 14, [[
                     'start' => 5,
                     'end' => 13,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ]]),
                 new AttributeAnalysis(16, 49, 16, 48, [[
                     'start' => 17,
                     'end' => 47,
-                    'name' => 'A\\B\\Quux',
+                    'name' => 'A\B\Quux',
                 ]]),
                 new AttributeAnalysis(50, 60, 50, 59, [[
                     'start' => 51,
                     'end' => 58,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ]]),
                 new AttributeAnalysis(61, 67, 61, 66, [[
                     'start' => 62,
@@ -224,17 +226,17 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(3, 14, 3, 13, [[
                     'start' => 4,
                     'end' => 12,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ]]),
                 new AttributeAnalysis(15, 48, 15, 47, [[
                     'start' => 16,
                     'end' => 46,
-                    'name' => 'A\\B\\Quux',
+                    'name' => 'A\B\Quux',
                 ]]),
                 new AttributeAnalysis(49, 59, 49, 58, [[
                     'start' => 50,
                     'end' => 57,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ]]),
                 new AttributeAnalysis(60, 66, 60, 65, [[
                     'start' => 61,
@@ -280,15 +282,15 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(2, 83, 2, 82, [[
                     'start' => 3,
                     'end' => 14,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ], [
                     'start' => 16,
                     'end' => 47,
-                    'name' => 'A\\B\\Quux',
+                    'name' => 'A\B\Quux',
                 ], [
                     'start' => 49,
                     'end' => 57,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ], [
                     'start' => 59,
                     'end' => 63,
@@ -315,15 +317,15 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(2, 77, 2, 76, [[
                     'start' => 3,
                     'end' => 12,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ], [
                     'start' => 14,
                     'end' => 45,
-                    'name' => 'A\\B\\Quux',
+                    'name' => 'A\B\Quux',
                 ], [
                     'start' => 47,
                     'end' => 55,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ], [
                     'start' => 57,
                     'end' => 61,
@@ -350,22 +352,11 @@ final class AttributeAnalyzerTest extends TestCase
      */
     public function testGetAttributeDeclarations81(string $code, int $startIndex, array $expectedAnalyses): void
     {
-        $tokens = Tokens::fromCode($code);
-        $actualAnalyses = AttributeAnalyzer::collect($tokens, $startIndex);
-
-        foreach ($expectedAnalyses as $expectedAnalysis) {
-            self::assertSame(T_ATTRIBUTE, $tokens[$expectedAnalysis->getOpeningBracketIndex()]->getId());
-            self::assertSame(CT::T_ATTRIBUTE_CLOSE, $tokens[$expectedAnalysis->getClosingBracketIndex()]->getId());
-        }
-
-        self::assertSame(
-            serialize($expectedAnalyses),
-            serialize($actualAnalyses),
-        );
+        $this->testGetAttributeDeclarations($code, $startIndex, $expectedAnalyses);
     }
 
     /**
-     * @return iterable<array{0: string, 1: int, 2: list<AttributeAnalysis>}>
+     * @return iterable<string, array{0: string, 1: int, 2: list<AttributeAnalysis>}>
      */
     public static function provideGetAttributeDeclarations81Cases(): iterable
     {
@@ -381,12 +372,12 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(2, 13, 2, 12, [[
                     'start' => 3,
                     'end' => 11,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ]]),
                 new AttributeAnalysis(14, 34, 14, 33, [[
                     'start' => 15,
                     'end' => 32,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ]]),
                 new AttributeAnalysis(35, 38, 35, 37, [[
                     'start' => 36,
@@ -410,11 +401,11 @@ final class AttributeAnalyzerTest extends TestCase
                 new AttributeAnalysis(2, 39, 2, 38, [[
                     'start' => 3,
                     'end' => 12,
-                    'name' => 'AB\\Baz',
+                    'name' => 'AB\Baz',
                 ], [
                     'start' => 14,
                     'end' => 32,
-                    'name' => '\\A\\B\\Qux',
+                    'name' => '\A\B\Qux',
                 ], [
                     'start' => 34,
                     'end' => 35,

@@ -24,6 +24,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Doctrine\Annotation\Token
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class TokenTest extends TestCase
 {
@@ -78,6 +80,9 @@ final class TokenTest extends TestCase
         self::assertTrue($token->isType($types));
     }
 
+    /**
+     * @return iterable<string, array{int, int|list<int>}>
+     */
     public static function provideIsTypeReturnsTrueCases(): iterable
     {
         yield 'same-value' => [
@@ -108,6 +113,9 @@ final class TokenTest extends TestCase
         self::assertFalse($token->isType($types));
     }
 
+    /**
+     * @return iterable<string, array{int, int|list<int>}>
+     */
     public static function provideIsTypeReturnsFalseCases(): iterable
     {
         yield 'different-value' => [

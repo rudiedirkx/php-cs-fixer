@@ -5,6 +5,15 @@ Rule ``fully_qualified_strict_types``
 Removes the leading part of fully qualified symbol references if a given symbol
 is imported or belongs to the current namespace.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``import_symbols``,
+``leading_backslash_in_global_namespace``, ``phpdoc_tags``.
+
 Configuration
 -------------
 
@@ -33,7 +42,7 @@ Default value: ``false``
 Collection of PHPDoc annotation tags where FQCNs should be processed. As of now
 only simple tags with ``@tag \F\Q\C\N`` format are supported (no complex types).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['param', 'phpstan-param', 'phpstan-property', 'phpstan-property-read', 'phpstan-property-write', 'phpstan-return', 'phpstan-var', 'property', 'property-read', 'property-write', 'psalm-param', 'psalm-property', 'psalm-property-read', 'psalm-property-write', 'psalm-return', 'psalm-var', 'return', 'see', 'throws', 'var']``
 

@@ -23,13 +23,15 @@ use PhpCsFixer\Tokenizer\CT;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\CT
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class CTTest extends TestCase
 {
     public function testUniqueValues(): void
     {
         $constants = self::getConstants();
-        self::assertSame($constants, array_flip(array_flip($constants)), 'Values of CT::T_* constants must be unique.');
+        self::assertSame($constants, array_unique($constants), 'Values of CT::T_* constants must be unique.');
     }
 
     /**
@@ -70,6 +72,9 @@ final class CTTest extends TestCase
         self::assertFalse(\defined($name), 'The CT name must not use native T_* name.');
     }
 
+    /**
+     * @return iterable<int, array{string, int}>
+     */
     public static function provideConstantsCases(): iterable
     {
         foreach (self::getConstants() as $name => $value) {

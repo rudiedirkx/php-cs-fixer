@@ -22,6 +22,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Console\SelfUpdate\NewVersionChecker
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class NewVersionCheckerTest extends TestCase
 {
@@ -42,6 +44,9 @@ final class NewVersionCheckerTest extends TestCase
         self::assertSame($expectedVersion, $checker->getLatestVersionOfMajor($majorVersion));
     }
 
+    /**
+     * @return iterable<int, array{int, null|string}>
+     */
     public static function provideGetLatestVersionOfMajorCases(): iterable
     {
         yield [1, 'v1.13.2'];
@@ -60,14 +65,17 @@ final class NewVersionCheckerTest extends TestCase
 
         self::assertSame(
             $expectedResult,
-            $checker->compareVersions($versionA, $versionB)
+            $checker->compareVersions($versionA, $versionB),
         );
         self::assertSame(
             -$expectedResult,
-            $checker->compareVersions($versionB, $versionA)
+            $checker->compareVersions($versionB, $versionA),
         );
     }
 
+    /**
+     * @return iterable<int, array{string, string, int}>
+     */
     public static function provideCompareVersionsCases(): iterable
     {
         foreach ([
@@ -101,7 +109,7 @@ final class NewVersionCheckerTest extends TestCase
 
     private function createGithubClientDouble(): GithubClientInterface
     {
-        return new class() implements GithubClientInterface {
+        return new class implements GithubClientInterface {
             public function getTags(): array
             {
                 return [

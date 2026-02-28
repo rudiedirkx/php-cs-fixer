@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\Basic;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Basic\EncodingFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Basic\EncodingFixer>
+ *
+ * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class EncodingFixerTest extends AbstractFixerTestCase
 {
@@ -33,6 +37,9 @@ final class EncodingFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input, $file);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string, 2?: \SplFileInfo}>
+     */
     public static function provideFixCases(): iterable
     {
         yield self::prepareTestCase('test-utf8.case1.php', 'test-utf8.case1-bom.php');
@@ -51,8 +58,8 @@ final class EncodingFixerTest extends AbstractFixerTestCase
         $inputFile = null !== $inputFilename ? new \SplFileInfo(__DIR__.'/../../Fixtures/FixerTest/encoding/'.$inputFilename) : null;
 
         return [
-            file_get_contents($expectedFile->getRealPath()),
-            null !== $inputFile ? file_get_contents($inputFile->getRealPath()) : null,
+            (string) file_get_contents($expectedFile->getRealPath()),
+            null !== $inputFile ? (string) file_get_contents($inputFile->getRealPath()) : null,
             $inputFile ?? $expectedFile,
         ];
     }

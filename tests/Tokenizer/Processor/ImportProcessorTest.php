@@ -24,11 +24,13 @@ use PhpCsFixer\WhitespacesFixerConfig;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Processor\ImportProcessor
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class ImportProcessorTest extends TestCase
 {
     /**
-     * @param class-string $symbol
+     * @param non-empty-string $symbol
      *
      * @dataProvider provideTokenizeNameCases
      */
@@ -40,37 +42,37 @@ final class ImportProcessorTest extends TestCase
                 '',
                 array_map(
                     static fn (Token $token): string => $token->getContent(),
-                    ImportProcessor::tokenizeName($symbol)
-                )
-            )
+                    ImportProcessor::tokenizeName($symbol),
+                ),
+            ),
         );
     }
 
     /**
-     * @return iterable<array{0: string}>
+     * @return iterable<int, array{0: string}>
      */
     public static function provideTokenizeNameCases(): iterable
     {
         yield [__CLASS__];
 
-        yield ['Foo\\Bar'];
+        yield ['Foo\Bar'];
 
-        yield ['\\Foo\\Bar'];
+        yield ['\Foo\Bar'];
 
         yield ['FooBar'];
 
-        yield ['\\FooBar'];
+        yield ['\FooBar'];
 
-        yield ['\\Foo\\Bar\\Baz\\Buzz'];
+        yield ['\Foo\Bar\Baz\Buzz'];
 
-        yield ['\\Foo1\\Bar_\\baz\\buzz'];
+        yield ['\Foo1\Bar_\baz\buzz'];
     }
 
     /**
      * @param array{
-     *      const?: array<int|string, class-string>,
-     *      class?: array<int|string, class-string>,
-     *      function?: array<int|string, class-string>
+     *      const?: array<int|string, non-empty-string>,
+     *      class?: array<int|string, non-empty-string>,
+     *      function?: array<int|string, non-empty-string>
      *  } $imports
      *
      * @dataProvider provideInsertImportsCases
@@ -101,7 +103,7 @@ use Other\B;
 namespace Foo;
 ',
             [
-                'class' => ['Other\\A', 'Other\\B'],
+                'class' => ['Other\A', 'Other\B'],
             ],
             6,
         ];
@@ -120,7 +122,7 @@ namespace Foo {
 }
 ',
             [
-                'class' => ['Other\\A', 'Other\\B'],
+                'class' => ['Other\A', 'Other\B'],
             ],
             7,
         ];

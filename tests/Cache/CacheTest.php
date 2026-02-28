@@ -19,6 +19,7 @@ use PhpCsFixer\Cache\CacheInterface;
 use PhpCsFixer\Cache\Signature;
 use PhpCsFixer\Cache\SignatureInterface;
 use PhpCsFixer\Config;
+use PhpCsFixer\Hasher;
 use PhpCsFixer\Tests\TestCase;
 use PhpCsFixer\ToolInfo;
 
@@ -28,6 +29,8 @@ use PhpCsFixer\ToolInfo;
  * @internal
  *
  * @covers \PhpCsFixer\Cache\Cache
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class CacheTest extends TestCase
 {
@@ -73,7 +76,7 @@ final class CacheTest extends TestCase
         $cache = new Cache($signature);
 
         $file = 'test.php';
-        $hash = md5('hello');
+        $hash = Hasher::calculate('hello');
 
         $cache->set($file, $hash);
 
@@ -88,7 +91,7 @@ final class CacheTest extends TestCase
         $cache = new Cache($signature);
 
         $file = 'test.php';
-        $hash = md5('hello');
+        $hash = Hasher::calculate('hello');
 
         $cache->set($file, $hash);
         $cache->clear($file);
@@ -114,11 +117,14 @@ final class CacheTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $json = json_encode($data, JSON_THROW_ON_ERROR);
+        $json = json_encode($data, \JSON_THROW_ON_ERROR);
 
         Cache::fromJson($json);
     }
 
+    /**
+     * @return iterable<int, array{array<string, mixed>}>
+     */
     public static function provideFromJsonThrowsInvalidArgumentExceptionIfJsonIsMissingKeyCases(): iterable
     {
         $data = [
@@ -128,6 +134,7 @@ final class CacheTest extends TestCase
                 'foo' => true,
                 'bar' => false,
             ],
+            'ruleCustomisationPolicyVersion' => '1.2.3',
             'hashes' => [],
         ];
 
@@ -148,7 +155,7 @@ final class CacheTest extends TestCase
         $cache = new Cache($signature);
 
         $file = 'test.php';
-        $hash = md5('hello');
+        $hash = Hasher::calculate('hello');
 
         $cache->set($file, $hash);
         $cached = Cache::fromJson($cache->toJson());
@@ -158,31 +165,36 @@ final class CacheTest extends TestCase
         self::assertSame($hash, $cached->get($file));
     }
 
+    /**
+     * @return iterable<int, array{Signature}>
+     */
     public static function provideCanConvertToAndFromJsonCases(): iterable
     {
         $toolInfo = new ToolInfo();
         $config = new Config();
 
         yield [new Signature(
-            PHP_VERSION,
+            \PHP_VERSION,
             '2.0',
             '  ',
             "\r\n",
             [
                 'foo' => true,
                 'bar' => true,
-            ]
+            ],
+            'fooBar',
         )];
 
         yield [new Signature(
-            PHP_VERSION,
+            \PHP_VERSION,
             $toolInfo->getVersion(),
             $config->getIndent(),
             $config->getLineEnding(),
             [
                 // value encoded in ANSI, not UTF
                 'header_comment' => ['header' => 'Dariusz '.base64_decode('UnVtafFza2k=', true)],
-            ]
+            ],
+            'fooBar',
         )];
     }
 
@@ -193,11 +205,11 @@ final class CacheTest extends TestCase
         $cache = new Cache($signature);
 
         $this->expectException(
-            \UnexpectedValueException::class
+            \UnexpectedValueException::class,
         );
 
         $this->expectExceptionMessage(
-            'Cannot encode cache signature to JSON, error: "Malformed UTF-8 characters, possibly incorrectly encoded". If you have non-UTF8 chars in your signature, like in license for `header_comment`, consider enabling `ext-mbstring` or install `symfony/polyfill-mbstring`.'
+            'Cannot encode cache signature to JSON, error: "Malformed UTF-8 characters, possibly incorrectly encoded". If you have non-UTF8 chars in your signature, like in license for `header_comment`, consider enabling `ext-mbstring` or install `symfony/polyfill-mbstring`.',
         );
 
         $cache->toJson();
@@ -205,7 +217,7 @@ final class CacheTest extends TestCase
 
     private function createSignatureDouble(): SignatureInterface
     {
-        return new class() implements SignatureInterface {
+        return new class implements SignatureInterface {
             public function getPhpVersion(): string
             {
                 return '7.1.0';
@@ -223,7 +235,7 @@ final class CacheTest extends TestCase
 
             public function getLineEnding(): string
             {
-                return PHP_EOL;
+                return \PHP_EOL;
             }
 
             public function getRules(): array
@@ -231,6 +243,11 @@ final class CacheTest extends TestCase
                 return [
                     "\xB1\x31" => true, // invalid UTF8 sequence
                 ];
+            }
+
+            public function getRuleCustomisationPolicyVersion(): string
+            {
+                return 'Policy Version';
             }
 
             public function equals(SignatureInterface $signature): bool

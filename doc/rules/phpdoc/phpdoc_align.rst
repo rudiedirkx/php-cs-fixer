@@ -5,6 +5,15 @@ Rule ``phpdoc_align``
 All items of the given PHPDoc tags must be either left-aligned or (by default)
 aligned vertically.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``align``, ``spacing``,
+``tags``.
+
 Configuration
 -------------
 
@@ -27,7 +36,7 @@ spacingForB]``. If you want to define default spacing to more than 1 space use
 ``_default`` key in config array, e.g.: ``['tagA' => spacingForA, 'tagB' =>
 spacingForB, '_default' => spacingForAllOthers]``.
 
-Allowed types: ``int`` and ``int[]``
+Allowed types: ``int`` and ``array<string, int>``
 
 Default value: ``1``
 
@@ -44,7 +53,7 @@ The tags that should be aligned. Allowed values are tags with name (``'param',
 'phpstan-method', 'psalm-method'``) and any custom tag with description (e.g.
 ``@tag <desc>``).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['method', 'param', 'property', 'return', 'throws', 'type', 'var']``
 

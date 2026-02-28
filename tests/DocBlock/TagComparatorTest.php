@@ -26,6 +26,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\DocBlock\TagComparator
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class TagComparatorTest extends TestCase
 {
@@ -44,6 +46,9 @@ final class TagComparatorTest extends TestCase
         self::assertSame($expected, TagComparator::shouldBeTogether($tag1, $tag2));
     }
 
+    /**
+     * @return iterable<int, array{string, string, bool}>
+     */
     public static function provideComparatorTogetherCases(): iterable
     {
         yield ['return', 'return', true];
@@ -81,10 +86,13 @@ final class TagComparatorTest extends TestCase
 
         self::assertSame(
             $expected,
-            TagComparator::shouldBeTogether($tag1, $tag2, $groups)
+            TagComparator::shouldBeTogether($tag1, $tag2, $groups),
         );
     }
 
+    /**
+     * @return iterable<int, array{list<list<string>>, string, string, bool}>
+     */
     public static function provideComparatorTogetherWithDefinedGroupsCases(): iterable
     {
         yield [[['param', 'return']], 'return', 'return', true];

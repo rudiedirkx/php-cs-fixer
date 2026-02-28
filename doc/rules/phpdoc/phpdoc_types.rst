@@ -4,6 +4,14 @@ Rule ``phpdoc_types``
 
 The correct case must be used for standard PHP types in PHPDoc.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``groups``.
+
 Configuration
 -------------
 
@@ -14,7 +22,7 @@ Type groups to fix.
 
 Allowed values: a subset of ``['alias', 'meta', 'simple']``
 
-Default value: ``['simple', 'alias', 'meta']``
+Default value: ``['alias', 'meta', 'simple']``
 
 Examples
 --------

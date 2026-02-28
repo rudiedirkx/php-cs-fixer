@@ -18,11 +18,15 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 use PhpCsFixer\WhitespacesFixerConfig;
 
 /**
- * @author Vladimir Boliev <voff.web@gmail.com>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Whitespace\MethodChainingIndentationFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Whitespace\MethodChainingIndentationFixer>
+ *
+ * @author Vladimir Boliev <voff.web@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class MethodChainingIndentationFixerTest extends AbstractFixerTestCase
 {
@@ -34,6 +38,9 @@ final class MethodChainingIndentationFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield [
@@ -406,24 +413,6 @@ $foo
         ];
 
         yield [
-            '<?php
-
-    $user->setEmail("voff.web@gmail.com", )
-        ->setPassword("233434" ,)
-        ->setEmailConfirmed(false , )
-        ->setEmailConfirmationCode("123456",    );
-',
-            '<?php
-
-    $user->setEmail("voff.web@gmail.com", )
-
-     ->setPassword("233434" ,)
-        ->setEmailConfirmed(false , )
-->setEmailConfirmationCode("123456",    );
-',
-        ];
-
-        yield [
             '<?php return $foo
 ->bar;',
         ];
@@ -458,6 +447,57 @@ abc(),
 ];
 ',
         ];
+
+        yield [
+            '<?php
+$obj
+    ->foo()
+    ->bar;
+',
+            '<?php
+$obj
+    ->foo()
+->bar;
+',
+        ];
+
+        yield [
+            '<?php
+return $obj
+    ->foo()
+    ->bar
+    ->baz();
+',
+            '<?php
+return $obj
+ ->foo()
+    ->bar
+  ->baz();
+',
+        ];
+
+        yield [
+            '<?php
+foo()
+    ->bar()
+    ->baz;
+
+        $obj
+            ->foo(\'123\', 456)
+            ->bar(\'789\')
+            ->baz;
+',
+            '<?php
+foo()
+->bar()
+->baz;
+
+        $obj
+    ->foo(\'123\', 456)
+->bar(\'789\')
+->baz;
+',
+        ];
     }
 
     /**
@@ -469,6 +509,9 @@ abc(),
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{string, string}>
+     */
     public static function provideWithWhitespacesConfigCases(): iterable
     {
         yield [
@@ -497,7 +540,7 @@ abc(),
      ?->setPassword("233434")
         ?->setEmailConfirmed(false)
 ?->setEmailConfirmationCode("123456");
-'
+',
         );
     }
 }

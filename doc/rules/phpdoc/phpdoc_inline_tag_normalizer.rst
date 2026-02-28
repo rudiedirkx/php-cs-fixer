@@ -4,6 +4,14 @@ Rule ``phpdoc_inline_tag_normalizer``
 
 Fixes PHPDoc inline tags.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``tags``.
+
 Configuration
 -------------
 
@@ -12,7 +20,7 @@ Configuration
 
 The list of tags to normalize.
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['example', 'id', 'internal', 'inheritdoc', 'inheritdocs', 'link', 'source', 'toc', 'tutorial']``
 

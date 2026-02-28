@@ -22,6 +22,8 @@ use PhpCsFixer\Tokenizer\Tokens;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Analyzer\GotoLabelAnalyzer
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class GotoLabelAnalyzerTest extends TestCase
 {
@@ -35,16 +37,16 @@ final class GotoLabelAnalyzerTest extends TestCase
         $tokens = Tokens::fromCode($source);
         $analyzer = new GotoLabelAnalyzer();
 
-        foreach ($tokens as $index => $isClassy) {
+        for ($index = $tokens->count() - 1; $index >= 0; --$index) {
             self::assertSame(
                 \in_array($index, $expectedTrue, true),
-                $analyzer->belongsToGoToLabel($tokens, $index)
+                $analyzer->belongsToGoToLabel($tokens, $index),
             );
         }
     }
 
     /**
-     * @return iterable<array{string, list<int>}>
+     * @return iterable<string, array{string, list<int>}>
      */
     public static function provideGotoLabelCases(): iterable
     {
@@ -112,19 +114,11 @@ Bar3:
      */
     public function testGotoLabel80(string $source, array $expectedTrue): void
     {
-        $tokens = Tokens::fromCode($source);
-        $analyzer = new GotoLabelAnalyzer();
-
-        foreach ($tokens as $index => $isClassy) {
-            self::assertSame(
-                \in_array($index, $expectedTrue, true),
-                $analyzer->belongsToGoToLabel($tokens, $index)
-            );
-        }
+        $this->testGotoLabel($source, $expectedTrue);
     }
 
     /**
-     * @return iterable<array{string, list<int>}>
+     * @return iterable<int, array{string, list<int>}>
      */
     public static function provideGotoLabel80Cases(): iterable
     {

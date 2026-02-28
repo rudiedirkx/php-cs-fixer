@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - v[0-9]+.[0-9]+.[0-9]+
 
 env:
   REGISTRY: ghcr.io
@@ -22,11 +22,15 @@ jobs:
           - php-version: '8.0'
             alpine-version: '3.16'
           - php-version: '8.1'
-            alpine-version: '3.18'
+            alpine-version: '3.22'
           - php-version: '8.2'
-            alpine-version: '3.18'
+            alpine-version: '3.23'
           - php-version: '8.3'
-            alpine-version: '3.18'
+            alpine-version: '3.23'
+          - php-version: '8.4'
+            alpine-version: '3.23'
+          - php-version: '8.5'
+            alpine-version: '3.23'
 
     permissions:
       contents: read
@@ -34,7 +38,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -61,9 +71,10 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           file: Dockerfile
           target: dist
           build-args: |

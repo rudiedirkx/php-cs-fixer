@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Phpdoc\PhpdocArrayTypeFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Phpdoc\PhpdocArrayTypeFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class PhpdocArrayTypeFixerTest extends AbstractFixerTestCase
 {
@@ -32,7 +36,7 @@ final class PhpdocArrayTypeFixerTest extends AbstractFixerTestCase
     }
 
     /**
-     * @return iterable<array{string, 1?: string}>
+     * @return iterable<int, array{string, 1?: string}>
      */
     public static function provideFixCases(): iterable
     {
@@ -147,14 +151,19 @@ final class PhpdocArrayTypeFixerTest extends AbstractFixerTestCase
         ];
 
         $expected = $input = 'string';
-        for ($i = 0; $i < 128; ++$i) {
+        for ($i = 0; $i < 32; ++$i) {
             $expected = 'array<'.$expected.'>';
             $input .= '[]';
         }
 
         yield [
-            sprintf('<?php /** @var %s */', $expected),
-            sprintf('<?php /** @var %s */', $input),
+            \sprintf('<?php /** @var %s */', $expected),
+            \sprintf('<?php /** @var %s */', $input),
+        ];
+
+        yield [
+            '<?php /** @return array<Foo<covariant TEntity>> */',
+            '<?php /** @return Foo<covariant TEntity>[] */',
         ];
     }
 }

@@ -5,6 +5,14 @@ Rule ``class_attributes_separation``
 Class, trait and interface elements must be separated with one or none blank
 line.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``elements``.
+
 Configuration
 -------------
 
@@ -14,7 +22,7 @@ Configuration
 Dictionary of ``const|method|property|trait_import|case`` =>
 ``none|one|only_if_meta`` values.
 
-Allowed types: ``array``
+Allowed types: ``array<string, string>``
 
 Default value: ``['const' => 'one', 'method' => 'one', 'property' => 'one', 'trait_import' => 'none', 'case' => 'none']``
 
@@ -143,7 +151,6 @@ The rule is part of the following rule sets:
 - `@Symfony <./../../ruleSets/Symfony.rst>`_ with config:
 
   ``['elements' => ['method' => 'one']]``
-
 
 References
 ----------

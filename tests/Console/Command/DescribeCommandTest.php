@@ -33,6 +33,7 @@ use PhpCsFixer\FixerDefinition\VersionSpecification;
 use PhpCsFixer\FixerDefinition\VersionSpecificCodeSample;
 use PhpCsFixer\FixerFactory;
 use PhpCsFixer\Tests\Fixtures\DescribeCommand\DescribeFixtureFixer;
+use PhpCsFixer\Tests\Fixtures\ExternalRuleSet\ExampleRuleSet;
 use PhpCsFixer\Tests\TestCase;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
@@ -45,6 +46,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @group legacy
  *
  * @covers \PhpCsFixer\Console\Command\DescribeCommand
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class DescribeCommandTest extends TestCase
 {
@@ -54,12 +57,8 @@ final class DescribeCommandTest extends TestCase
     public function testExecuteOutput(string $expected, bool $expectedIsRegEx, bool $decorated, FixerInterface $fixer): void
     {
         if ($fixer instanceof DeprecatedFixerInterface) {
-            $this->expectDeprecation(sprintf('Rule "%s" is deprecated. Use "%s" instead.', $fixer->getName(), implode('", "', $fixer->getSuccessorsNames())));
+            $this->expectDeprecation(\sprintf('Rule "%s" is DEPRECATED and will be removed in the next major version 4.0. You should use "%s" instead.', $fixer->getName(), implode('", "', $fixer->getSuccessorsNames())));
         }
-
-        // @TODO 4.0 Remove these expectations:
-        $this->expectDeprecation('Rule set "@PER" is deprecated. Use "@PER-CS" instead.');
-        $this->expectDeprecation('Rule set "@PER:risky" is deprecated. Use "@PER-CS:risky" instead.');
 
         $actual = $this->execute($fixer->getName(), $decorated, $fixer)->getDisplay(true);
 
@@ -70,17 +69,21 @@ final class DescribeCommandTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, array{string, bool, bool, FixerInterface}>
+     */
     public static function provideExecuteOutputCases(): iterable
     {
         yield 'rule is configurable, risky and deprecated' => [
             "Description of the `Foo/bar` rule.
 
-DEPRECATED: use `Foo/baz` instead.
-
 Fixes stuff.
 Replaces bad stuff with good stuff.
 
-Fixer applying this rule is RISKY.
+This rule is DEPRECATED and will be removed in the next major version 4.0
+You should use `Foo/baz` instead.
+
+This rule is RISKY
 Can break stuff.
 
 Fixer is configurable using following options:
@@ -117,12 +120,13 @@ Fixing examples:
         yield 'rule is configurable, risky and deprecated [with decoration]' => [
             "\033[34mDescription of the \033[39m\033[32m`Foo/bar`\033[39m\033[34m rule.\033[39m
 
-\033[37;41mDEPRECATED\033[39;49m: use \033[32m`Foo/baz`\033[39m instead.
-
 Fixes stuff.
 Replaces bad stuff with good stuff.
 
-\033[37;41mFixer applying this rule is RISKY.\033[39;49m
+\033[37;41mThis rule is DEPRECATED and will be removed in the next major version 4.0\033[39;49m
+You should use \033[32m`Foo/baz`\033[39m instead.
+
+\033[37;41mThis rule is RISKY\033[39;49m
 Can break stuff.
 
 Fixer is configurable using following options:
@@ -202,10 +206,10 @@ Fixing examples:
             false,
             self::createFixerWithSamplesDouble([
                 new CodeSample(
-                    "<?php echo 'BEFORE';".PHP_EOL,
+                    "<?php echo 'BEFORE';".\PHP_EOL,
                 ),
                 new CodeSample(
-                    "<?php echo 'BEFORE'.'-B';".PHP_EOL,
+                    "<?php echo 'BEFORE'.'-B';".\PHP_EOL,
                 ),
             ]),
         ];
@@ -232,11 +236,11 @@ Fixing examples:
             false,
             self::createFixerWithSamplesDouble([
                 new CodeSample(
-                    "<?php echo 'BEFORE';".PHP_EOL,
+                    "<?php echo 'BEFORE';".\PHP_EOL,
                 ),
                 new VersionSpecificCodeSample(
-                    "<?php echo 'BEFORE'.'-B';".PHP_EOL,
-                    new VersionSpecification(20_00_00)
+                    "<?php echo 'BEFORE'.'-B';".\PHP_EOL,
+                    new VersionSpecification(20_00_00),
                 ),
             ]),
         ];
@@ -254,12 +258,12 @@ Fixing examples cannot be demonstrated on the current PHP version.
             false,
             self::createFixerWithSamplesDouble([
                 new VersionSpecificCodeSample(
-                    "<?php echo 'BEFORE';".PHP_EOL,
-                    new VersionSpecification(20_00_00)
+                    "<?php echo 'BEFORE';".\PHP_EOL,
+                    new VersionSpecification(20_00_00),
                 ),
                 new VersionSpecificCodeSample(
-                    "<?php echo 'BEFORE'.'-B';".PHP_EOL,
-                    new VersionSpecification(20_00_00)
+                    "<?php echo 'BEFORE'.'-B';".\PHP_EOL,
+                    new VersionSpecification(20_00_00),
                 ),
             ]),
         ];
@@ -269,16 +273,19 @@ Fixing examples cannot be demonstrated on the current PHP version.
 .*
    ----------- end diff -----------
 
-'.preg_quote("Fixer is part of the following rule sets:
-* @PER with config: ['default' => 'at_least_single_space']
+'.preg_quote("The fixer is part of the following rule sets:
+* @PER *(deprecated)* with config: ['default' => 'at_least_single_space']
 * @PER-CS with config: ['default' => 'at_least_single_space']
-* @PER-CS1.0 with config: ['default' => 'at_least_single_space']
-* @PER-CS2.0 with config: ['default' => 'at_least_single_space']
+* @PER-CS1.0 *(deprecated)* with config: ['default' => 'at_least_single_space']
+* @PER-CS1x0 with config: ['default' => 'at_least_single_space']
+* @PER-CS2.0 *(deprecated)* with config: ['default' => 'at_least_single_space']
+* @PER-CS2x0 with config: ['default' => 'at_least_single_space']
+* @PER-CS3.0 *(deprecated)* with config: ['default' => 'at_least_single_space']
+* @PER-CS3x0 with config: ['default' => 'at_least_single_space']
 * @PSR12 with config: ['default' => 'at_least_single_space']
 * @PhpCsFixer with default config
 * @Symfony with default config").'
 $/s',
-
             true,
             false,
             new BinaryOperatorSpacesFixer(),
@@ -287,10 +294,7 @@ $/s',
 
     public function testExecuteStatusCode(): void
     {
-        $this->expectDeprecation('Rule "Foo/bar" is deprecated. Use "Foo/baz" instead.');
-        // @TODO 4.0 Remove these expectations:
-        $this->expectDeprecation('Rule set "@PER" is deprecated. Use "@PER-CS" instead.');
-        $this->expectDeprecation('Rule set "@PER:risky" is deprecated. Use "@PER-CS:risky" instead.');
+        $this->expectDeprecation('Rule "Foo/bar" is DEPRECATED and will be removed in the next major version 4.0. You should use "Foo/baz" instead.');
 
         self::assertSame(0, $this->execute('Foo/bar', false)->getStatusCode());
     }
@@ -309,6 +313,8 @@ $/s',
         $commandTester->execute([
             'command' => $command->getName(),
             'name' => 'Foo/bar',
+
+            '--config' => __DIR__.'/../../Fixtures/.php-cs-fixer.vanilla.php',
         ]);
     }
 
@@ -326,6 +332,7 @@ $/s',
         $commandTester->execute([
             'command' => $command->getName(),
             'name' => '@NoSuchSet',
+            '--config' => __DIR__.'/../../Fixtures/.php-cs-fixer.vanilla.php',
         ]);
     }
 
@@ -339,10 +346,11 @@ $/s',
         $commandTester = new CommandTester($command);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/^Not enough arguments( \(missing: "name"\))?\.$/');
+        $this->expectExceptionMessage('Not enough arguments (missing: "name") when not running interactively.');
         $commandTester->execute([
             'command' => $command->getName(),
-        ]);
+            '--config' => __DIR__.'/../../Fixtures/.php-cs-fixer.vanilla.php',
+        ], ['interactive' => false]);
     }
 
     public function testGetAlternativeSuggestion(): void
@@ -354,11 +362,7 @@ $/s',
 
     public function testFixerClassNameIsExposedWhenVerbose(): void
     {
-        // @TODO 4.0 Remove these expectations:
-        $this->expectDeprecation('Rule set "@PER" is deprecated. Use "@PER-CS" instead.');
-        $this->expectDeprecation('Rule set "@PER:risky" is deprecated. Use "@PER-CS:risky" instead.');
-
-        $fixer = new class() implements FixerInterface {
+        $fixer = new class implements FixerInterface {
             public function isCandidate(Tokens $tokens): bool
             {
                 throw new \LogicException('Not implemented.');
@@ -408,10 +412,11 @@ $/s',
             [
                 'command' => $command->getName(),
                 'name' => 'Foo/bar_baz',
+                '--config' => __DIR__.'/../../Fixtures/.php-cs-fixer.vanilla.php',
             ],
             [
                 'verbosity' => OutputInterface::VERBOSITY_VERBOSE,
-            ]
+            ],
         );
 
         self::assertStringContainsString(str_replace("\0", '\\', \get_class($fixer)), $commandTester->getDisplay(true));
@@ -419,10 +424,6 @@ $/s',
 
     public function testCommandDescribesCustomFixer(): void
     {
-        // @TODO 4.0 Remove these expectations:
-        $this->expectDeprecation('Rule set "@PER" is deprecated. Use "@PER-CS" instead.');
-        $this->expectDeprecation('Rule set "@PER:risky" is deprecated. Use "@PER-CS:risky" instead.');
-
         $application = new Application();
         $application->add(new DescribeCommand());
 
@@ -432,11 +433,10 @@ $/s',
         $commandTester->execute([
             'command' => $command->getName(),
             'name' => (new DescribeFixtureFixer())->getName(),
-            '--config' => __DIR__.'/../../Fixtures/DescribeCommand/.php-cs-fixer.fixture.php',
+            '--config' => __DIR__.'/../../Fixtures/DescribeCommand/.php-cs-fixer.custom-rule.php',
         ]);
 
-        $expected =
-"Description of the `Vendor/describe_fixture` rule.
+        $expected = "Description of the `Vendor/describe_fixture` rule.
 
 Fixture for describe command.
 
@@ -457,6 +457,34 @@ Fixing examples:
         self::assertSame(0, $commandTester->getStatusCode());
     }
 
+    public function testCommandDescribesCustomSet(): void
+    {
+        $application = new Application();
+        $application->add(new DescribeCommand());
+
+        $command = $application->find('describe');
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'name' => (new ExampleRuleSet())->getName(),
+            '--config' => __DIR__.'/../../Fixtures/DescribeCommand/.php-cs-fixer.custom-set.php',
+        ]);
+
+        $expected = "You may the '--expand' option to see nested sets expanded into nested rules.
+Description of the `@Vendor/RuleSet` set.
+
+Purpose of example rule set description.
+
+ * align_multiline_comment configurable
+   | Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one.
+   | Configuration: false
+
+";
+        self::assertSame($expected, $commandTester->getDisplay(true));
+        self::assertSame(0, $commandTester->getStatusCode());
+    }
+
     /**
      * @param list<CodeSampleInterface> $samples
      */
@@ -466,7 +494,7 @@ Fixing examples:
             /**
              * @var list<CodeSampleInterface>
              */
-            private $samples;
+            private array $samples;
 
             /**
              * @param list<CodeSampleInterface> $samples
@@ -510,7 +538,7 @@ Fixing examples:
 
     private static function createConfigurableDeprecatedFixerDouble(): FixerInterface
     {
-        return new class() implements ConfigurableFixerInterface, DeprecatedFixerInterface {
+        return new class implements ConfigurableFixerInterface, DeprecatedFixerInterface {
             /** @var array<string, mixed> */
             private array $configuration;
 
@@ -525,7 +553,7 @@ Fixing examples:
 
                 return new FixerConfigurationResolver([
                     (new AliasedFixerOptionBuilder(new FixerOptionBuilder('functions', 'List of `function` names to fix.'), 'funcs'))
-                        ->setAllowedTypes(['array'])
+                        ->setAllowedTypes(['string[]'])
                         ->setAllowedValues([new AllowedValueSubset($functionNames)])
                         ->setDefault($functionNames)
                         ->getOption(),
@@ -566,15 +594,15 @@ Fixing examples:
                     'Fixes stuff.',
                     [
                         new CodeSample(
-                            "<?php echo 'bad stuff and bad thing';\n"
+                            "<?php echo 'bad stuff and bad thing';\n",
                         ),
                         new CodeSample(
                             "<?php echo 'bad stuff and bad thing';\n",
-                            ['functions' => ['foo', 'bar']]
+                            ['functions' => ['foo', 'bar']],
                         ),
                     ],
                     'Replaces bad stuff with good stuff.',
-                    'Can break stuff.'
+                    'Can break stuff.',
                 );
             }
 
@@ -615,10 +643,11 @@ Fixing examples:
             [
                 'command' => $command->getName(),
                 'name' => $name,
+                '--config' => __DIR__.'/../../Fixtures/.php-cs-fixer.vanilla.php',
             ],
             [
                 'decorated' => $decorated,
-            ]
+            ],
         );
 
         return $commandTester;

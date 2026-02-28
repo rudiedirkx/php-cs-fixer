@@ -21,6 +21,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Casing\NativeFunctionTypeDeclarationCasingFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Casing\NativeFunctionTypeDeclarationCasingFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class NativeFunctionTypeDeclarationCasingFixerTest extends AbstractFixerTestCase
 {
@@ -44,7 +48,7 @@ final class NativeFunctionTypeDeclarationCasingFixerTest extends AbstractFixerTe
     }
 
     /**
-     * @return iterable<array{string, null|string}>
+     * @return iterable<array{0: string, 1?: string}>
      */
     public static function provideFixCases(): iterable
     {

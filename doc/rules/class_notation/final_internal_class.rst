@@ -4,13 +4,20 @@ Rule ``final_internal_class``
 
 Internal classes should be ``final``.
 
-Warning
--------
+Warnings
+--------
 
-Using this rule is risky
-~~~~~~~~~~~~~~~~~~~~~~~~
+This rule is RISKY
+~~~~~~~~~~~~~~~~~~
 
 Changing classes to ``final`` might cause code execution to break.
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``annotation_exclude``,
+``annotation_include``, ``consider_absent_docblock_as_internal_class``,
+``exclude``, ``include``.
 
 Configuration
 -------------
@@ -23,7 +30,7 @@ Configuration
 Class level attribute or annotation tags that must be omitted to fix the class,
 even if all of the white list ones are used as well (case insensitive).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['@final', '@Entity', '@ORM\\Entity', '@ORM\\Mapping\\Entity', '@Mapping\\Entity', '@Document', '@ODM\\Document']``
 
@@ -35,7 +42,7 @@ Default value: ``['@final', '@Entity', '@ORM\\Entity', '@ORM\\Mapping\\Entity', 
 Class level attribute or annotation tags that must be set in order to fix the
 class (case insensitive).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['@internal']``
 
@@ -54,7 +61,7 @@ Default value: ``false``
 Class level attribute or annotation tags that must be omitted to fix the class,
 even if all of the white list ones are used as well (case insensitive).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['final', 'Entity', 'ORM\\Entity', 'ORM\\Mapping\\Entity', 'Mapping\\Entity', 'Document', 'ODM\\Document']``
 
@@ -64,7 +71,7 @@ Default value: ``['final', 'Entity', 'ORM\\Entity', 'ORM\\Mapping\\Entity', 'Map
 Class level attribute or annotation tags that must be set in order to fix the
 class (case insensitive).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['internal']``
 

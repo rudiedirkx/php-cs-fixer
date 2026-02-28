@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\Phpdoc;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Graham Campbell <hello@gjcampbell.co.uk>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Phpdoc\PhpdocNoAccessFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Phpdoc\PhpdocNoAccessFixer>
+ *
+ * @author Graham Campbell <hello@gjcampbell.co.uk>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class PhpdocNoAccessFixerTest extends AbstractFixerTestCase
 {
@@ -34,7 +38,7 @@ final class PhpdocNoAccessFixerTest extends AbstractFixerTestCase
     }
 
     /**
-     * @return iterable<array{0: string, 1?: string}>
+     * @return iterable<string, array{0: string, 1?: string}>
      */
     public static function provideFixCases(): iterable
     {
@@ -51,7 +55,7 @@ final class PhpdocNoAccessFixerTest extends AbstractFixerTestCase
                      * @access public
                      */
 
-                PHP
+                PHP,
         ];
 
         yield 'many' => [
@@ -72,7 +76,7 @@ final class PhpdocNoAccessFixerTest extends AbstractFixerTestCase
                  * @access foo
                  */
 
-                PHP
+                PHP,
         ];
 
         yield 'do nothing' => [
@@ -82,7 +86,7 @@ final class PhpdocNoAccessFixerTest extends AbstractFixerTestCase
                      * @var access
                      */
 
-                PHP
+                PHP,
         ];
     }
 }

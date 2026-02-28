@@ -4,6 +4,14 @@ Rule ``phpdoc_tag_casing``
 
 Fixes casing of PHPDoc tags.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``tags``.
+
 Configuration
 -------------
 
@@ -12,7 +20,7 @@ Configuration
 
 List of tags to fix with their expected casing.
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['inheritDoc']``
 
@@ -49,6 +57,7 @@ With configuration: ``['tags' => ['foo']]``.
    - * @Foo
    + * @foo
      */
+
 References
 ----------
 

@@ -4,6 +4,15 @@ Rule ``phpdoc_to_comment``
 
 Docblocks should only be used on structural elements.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options:
+``allow_before_return_statement``, ``ignored_tags``.
+
 Configuration
 -------------
 
@@ -16,12 +25,14 @@ Allowed types: ``bool``
 
 Default value: ``false``
 
+Default value (future-mode): ``true``
+
 ``ignored_tags``
 ~~~~~~~~~~~~~~~~
 
 List of ignored tags (matched case insensitively).
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``[]``
 
@@ -97,8 +108,13 @@ Rule sets
 
 The rule is part of the following rule sets:
 
-- `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_
-- `@Symfony <./../../ruleSets/Symfony.rst>`_
+- `@PhpCsFixer <./../../ruleSets/PhpCsFixer.rst>`_ with config:
+
+  ``['allow_before_return_statement' => false]``
+
+- `@Symfony <./../../ruleSets/Symfony.rst>`_ with config:
+
+  ``['allow_before_return_statement' => false]``
 
 References
 ----------

@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\FunctionNotation\StaticLambdaFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\FunctionNotation\StaticLambdaFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class StaticLambdaFixerTest extends AbstractFixerTestCase
 {
@@ -31,6 +35,9 @@ final class StaticLambdaFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield 'sample' => [
@@ -263,6 +270,20 @@ final class StaticLambdaFixerTest extends AbstractFixerTestCase
         ];
 
         yield [
+            '<?php
+                    class N
+                    {
+                        public function O()
+                        {
+                            $a = function () {
+                                return new class($this) {};
+                            };
+                        }
+                    }
+                ',
+        ];
+
+        yield [
             '<?php function test(){} test();',
         ];
 
@@ -326,6 +347,66 @@ $b->abc();
                         }
                     }
                 ',
+        ];
+
+        yield 'anonymous function returning defining class that uses `$this`' => [
+            <<<'PHP'
+                <?php
+                $f = static function () {
+                    class C extends P {
+                        public function f() { return $this->f2(); }
+                    }
+                };
+                PHP,
+            <<<'PHP'
+                <?php
+                $f = function () {
+                    class C extends P {
+                        public function f() { return $this->f2(); }
+                    }
+                };
+                PHP,
+        ];
+
+        yield 'anonymous function defining trait that uses `$this`' => [
+            <<<'PHP'
+                <?php
+                $f = static function () {
+                    trait T {
+                        public function f() { return $this->f2(); }
+                    }
+                };
+                PHP,
+            <<<'PHP'
+                <?php
+                $f = function () {
+                    trait T {
+                        public function f() { return $this->f2(); }
+                    }
+                };
+                PHP,
+        ];
+
+        yield 'anonymous function using anonymous class that uses `$this`' => [
+            <<<'PHP'
+                <?php
+                $f = static function () {
+                    $o = new class { function f() { return $this->x; } };
+                    return $o->f();
+                };
+                PHP,
+            <<<'PHP'
+                <?php
+                $f = function () {
+                    $o = new class { function f() { return $this->x; } };
+                    return $o->f();
+                };
+                PHP,
+        ];
+
+        yield 'arrow function returning anonymous class that uses `$this`' => [
+            '<?php return static fn () => new class { function f() { return $this->x; } };',
+            '<?php return fn () => new class { function f() { return $this->x; } };',
         ];
     }
 }

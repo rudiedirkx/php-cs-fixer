@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\PhpUnit;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Roland Franssen <franssen.roland@gmail.com>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\PhpUnit\PhpUnitFqcnAnnotationFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\PhpUnit\PhpUnitFqcnAnnotationFixer>
+ *
+ * @author Roland Franssen <franssen.roland@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class PhpUnitFqcnAnnotationFixerTest extends AbstractFixerTestCase
 {
@@ -33,6 +37,9 @@ final class PhpUnitFqcnAnnotationFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield [
@@ -83,7 +90,7 @@ final class PhpUnitFqcnAnnotationFixerTest extends AbstractFixerTestCase
                      * @uses static::someOtherFunction
                      */
                 }
-                EOF
+                EOF,
         ];
 
         yield [

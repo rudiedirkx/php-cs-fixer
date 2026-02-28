@@ -23,6 +23,8 @@ use PhpCsFixer\Tokenizer\Analyzer\Analysis\TypeAnalysis;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Analyzer\Analysis\TypeAnalysis
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class TypeAnalysisTest extends TestCase
 {
@@ -58,6 +60,9 @@ final class TypeAnalysisTest extends TestCase
         self::assertSame($expected, $analysis->isReservedType());
     }
 
+    /**
+     * @return iterable<int, array{string, bool}>
+     */
     public static function provideReservedCases(): iterable
     {
         yield ['array', true];
@@ -71,6 +76,8 @@ final class TypeAnalysisTest extends TestCase
         yield ['int', true];
 
         yield ['iterable', true];
+
+        yield ['list', true];
 
         yield ['mixed', true];
 
@@ -111,7 +118,7 @@ final class TypeAnalysisTest extends TestCase
     }
 
     /**
-     * @return iterable<array{bool, string}>
+     * @return iterable<int, array{bool, string}>
      */
     public static function provideIsNullableCases(): iterable
     {
@@ -135,12 +142,11 @@ final class TypeAnalysisTest extends TestCase
      */
     public function testIsNullable80(bool $expected, string $input): void
     {
-        $analysis = new TypeAnalysis($input, 1, 2);
-        self::assertSame($expected, $analysis->isNullable());
+        $this->testIsNullable($expected, $input);
     }
 
     /**
-     * @return iterable<array{bool, string}>
+     * @return iterable<int, array{bool, string}>
      */
     public static function provideIsNullable80Cases(): iterable
     {
@@ -198,12 +204,11 @@ final class TypeAnalysisTest extends TestCase
      */
     public function testIsNullable81(bool $expected, string $input): void
     {
-        $analysis = new TypeAnalysis($input, 1, 2);
-        self::assertSame($expected, $analysis->isNullable());
+        $this->testIsNullable($expected, $input);
     }
 
     /**
-     * @return iterable<array{bool, string}>
+     * @return iterable<int, array{bool, string}>
      */
     public static function provideIsNullable81Cases(): iterable
     {
@@ -221,12 +226,11 @@ final class TypeAnalysisTest extends TestCase
      */
     public function testIsNullable82(bool $expected, string $input): void
     {
-        $analysis = new TypeAnalysis($input, 1, 2);
-        self::assertSame($expected, $analysis->isNullable());
+        $this->testIsNullable($expected, $input);
     }
 
     /**
-     * @return iterable<array{bool, string}>
+     * @return iterable<int, array{bool, string}>
      */
     public static function provideIsNullable82Cases(): iterable
     {

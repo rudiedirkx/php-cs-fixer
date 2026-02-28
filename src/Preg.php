@@ -21,6 +21,8 @@ namespace PhpCsFixer;
  * @author Kuba Werłos <werlos@gmail.com>
  *
  * @internal
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class Preg
 {
@@ -44,16 +46,16 @@ final class Preg
     public static function match(string $pattern, string $subject, ?array &$matches = null, int $flags = 0, int $offset = 0): bool
     {
         $result = @preg_match(self::addUtf8Modifier($pattern), $subject, $matches, $flags, $offset);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return 1 === $result;
         }
 
         $result = @preg_match(self::removeUtf8Modifier($pattern), $subject, $matches, $flags, $offset);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return 1 === $result;
         }
 
-        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, (array) $pattern);
+        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, $pattern);
     }
 
     /**
@@ -74,7 +76,7 @@ final class Preg
      *                         ? list<array<?string>>
      *                         : ($flags is int-mask<PREG_SET_ORDER, PREG_OFFSET_CAPTURE, PREG_UNMATCHED_AS_NULL>&770
      *                             ? list<array<array{?string, int}>>
-     *                             : array
+     *                             : ($flags is 0 ? array<list<string>> : array<mixed>)
      *                         )
      *                     )
      *                 )
@@ -85,41 +87,41 @@ final class Preg
      *
      * @throws PregException
      */
-    public static function matchAll(string $pattern, string $subject, ?array &$matches = null, int $flags = PREG_PATTERN_ORDER, int $offset = 0): int
+    public static function matchAll(string $pattern, string $subject, ?array &$matches = null, int $flags = \PREG_PATTERN_ORDER, int $offset = 0): int
     {
         $result = @preg_match_all(self::addUtf8Modifier($pattern), $subject, $matches, $flags, $offset);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
         $result = @preg_match_all(self::removeUtf8Modifier($pattern), $subject, $matches, $flags, $offset);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
-        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, (array) $pattern);
+        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, $pattern);
     }
 
     /**
-     * @param string|string[] $subject
-     *
      * @param-out int $count
+     *
+     * @return ($subject is non-empty-string ? ($replacement is non-empty-string ? non-empty-string : string) : string)
      *
      * @throws PregException
      */
-    public static function replace(string $pattern, string $replacement, $subject, int $limit = -1, ?int &$count = null): string
+    public static function replace(string $pattern, string $replacement, string $subject, int $limit = -1, ?int &$count = null): string
     {
         $result = @preg_replace(self::addUtf8Modifier($pattern), $replacement, $subject, $limit, $count);
-        if (null !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (null !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
         $result = @preg_replace(self::removeUtf8Modifier($pattern), $replacement, $subject, $limit, $count);
-        if (null !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (null !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
-        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, (array) $pattern);
+        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, $pattern);
     }
 
     /**
@@ -130,63 +132,45 @@ final class Preg
     public static function replaceCallback(string $pattern, callable $callback, string $subject, int $limit = -1, ?int &$count = null): string
     {
         $result = @preg_replace_callback(self::addUtf8Modifier($pattern), $callback, $subject, $limit, $count);
-        if (null !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (null !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
         $result = @preg_replace_callback(self::removeUtf8Modifier($pattern), $callback, $subject, $limit, $count);
-        if (null !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (null !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
-        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, (array) $pattern);
+        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, $pattern);
     }
 
     /**
-     * @return string[]
+     * @return ($flags is PREG_SPLIT_OFFSET_CAPTURE ? list<array{string, int<0, max>}> : list<string>)
      *
      * @throws PregException
      */
     public static function split(string $pattern, string $subject, int $limit = -1, int $flags = 0): array
     {
         $result = @preg_split(self::addUtf8Modifier($pattern), $subject, $limit, $flags);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
         $result = @preg_split(self::removeUtf8Modifier($pattern), $subject, $limit, $flags);
-        if (false !== $result && PREG_NO_ERROR === preg_last_error()) {
+        if (false !== $result && \PREG_NO_ERROR === preg_last_error()) {
             return $result;
         }
 
-        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, (array) $pattern);
+        throw self::newPregException(preg_last_error(), preg_last_error_msg(), __METHOD__, $pattern);
     }
 
-    /**
-     * @param string|string[] $pattern
-     *
-     * @return string|string[]
-     */
-    private static function addUtf8Modifier($pattern)
+    private static function addUtf8Modifier(string $pattern): string
     {
-        if (\is_array($pattern)) {
-            return array_map(__METHOD__, $pattern);
-        }
-
         return $pattern.'u';
     }
 
-    /**
-     * @param string|string[] $pattern
-     *
-     * @return string|string[]
-     */
-    private static function removeUtf8Modifier($pattern)
+    private static function removeUtf8Modifier(string $pattern): string
     {
-        if (\is_array($pattern)) {
-            return array_map(__METHOD__, $pattern);
-        }
-
         if ('' === $pattern) {
             return '';
         }
@@ -194,49 +178,41 @@ final class Preg
         $delimiter = $pattern[0];
 
         $endDelimiterPosition = strrpos($pattern, $delimiter);
+        \assert(\is_int($endDelimiterPosition));
 
         return substr($pattern, 0, $endDelimiterPosition).str_replace('u', '', substr($pattern, $endDelimiterPosition));
     }
 
     /**
-     * Create PregException.
-     *
-     * Create the generic PregException message and if possible due to finding
-     * an invalid pattern, tell more about such kind of error in the message.
-     *
-     * @param string[] $patterns
+     * Create the generic PregException message and tell more about such kind of error in the message.
      */
-    private static function newPregException(int $error, string $errorMsg, string $method, array $patterns): PregException
+    private static function newPregException(int $error, string $errorMsg, string $method, string $pattern): PregException
     {
-        foreach ($patterns as $pattern) {
-            $result = null;
-            $errorMessage = null;
+        $result = null;
+        $errorMessage = null;
 
-            try {
-                $result = ExecutorWithoutErrorHandler::execute(static fn () => preg_match($pattern, ''));
-            } catch (ExecutorWithoutErrorHandlerException $e) {
-                $result = false;
-                $errorMessage = $e->getMessage();
-            }
-
-            if (false !== $result) {
-                continue;
-            }
-
-            $code = preg_last_error();
-
-            $message = sprintf(
-                '(code: %d) %s',
-                $code,
-                preg_replace('~preg_[a-z_]+[()]{2}: ~', '', $errorMessage)
-            );
-
-            return new PregException(
-                sprintf('%s(): Invalid PCRE pattern "%s": %s (version: %s)', $method, $pattern, $message, PCRE_VERSION),
-                $code
-            );
+        try {
+            $result = ExecutorWithoutErrorHandler::execute(static fn () => preg_match($pattern, ''));
+        } catch (ExecutorWithoutErrorHandlerException $e) {
+            $result = false;
+            $errorMessage = $e->getMessage();
         }
 
-        return new PregException(sprintf('Error occurred when calling %s: %s.', $method, $errorMsg), $error);
+        if (false !== $result) {
+            return new PregException(\sprintf('Unknown error occurred when calling %s: %s.', $method, $errorMsg), $error);
+        }
+
+        $code = preg_last_error();
+
+        $message = \sprintf(
+            '(code: %d) %s',
+            $code,
+            preg_replace('~preg_[a-z_]+[()]{2}: ~', '', $errorMessage),
+        );
+
+        return new PregException(
+            \sprintf('%s(): Invalid PCRE pattern "%s": %s (version: %s)', $method, $pattern, $message, \PCRE_VERSION),
+            $code,
+        );
     }
 }

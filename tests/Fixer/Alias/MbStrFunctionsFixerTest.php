@@ -17,12 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\Alias;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Filippo Tessarotto <zoeslam@gmail.com>
- *
  * @internal
  *
- * @covers \PhpCsFixer\AbstractFunctionReferenceFixer
  * @covers \PhpCsFixer\Fixer\Alias\MbStrFunctionsFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Alias\MbStrFunctionsFixer>
+ *
+ * @author Filippo Tessarotto <zoeslam@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class MbStrFunctionsFixerTest extends AbstractFixerTestCase
 {
@@ -34,6 +37,9 @@ final class MbStrFunctionsFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield ['<?php $x = "strlen";'];
@@ -78,6 +84,27 @@ final class MbStrFunctionsFixerTest extends AbstractFixerTestCase
         yield [
             '<?php $a = mb_str_split($a);',
             '<?php $a = str_split($a);',
+        ];
+
+        yield [
+            <<<'PHP'
+                <?php
+                namespace Foo;
+                use function Bar\strlen;
+                use function mb_strtolower;
+                use function mb_strtoupper;
+                use function \mb_str_split;
+                return strlen($x) > 10 ? mb_strtolower($x) : mb_strtoupper($x);
+                PHP,
+            <<<'PHP'
+                <?php
+                namespace Foo;
+                use function Bar\strlen;
+                use function strtolower;
+                use function strtoupper;
+                use function \str_split;
+                return strlen($x) > 10 ? strtolower($x) : strtoupper($x);
+                PHP,
         ];
     }
 

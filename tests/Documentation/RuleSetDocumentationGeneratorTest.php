@@ -26,6 +26,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Documentation\RuleSetDocumentationGenerator
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class RuleSetDocumentationGeneratorTest extends TestCase
 {
@@ -48,7 +50,7 @@ final class RuleSetDocumentationGeneratorTest extends TestCase
     }
 
     /**
-     * @return iterable<array{string}>
+     * @return iterable<int, array{string}>
      */
     public static function provideGenerateRuleSetsDocumentationCases(): iterable
     {
