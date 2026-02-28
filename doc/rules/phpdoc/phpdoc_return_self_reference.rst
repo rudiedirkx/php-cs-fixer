@@ -5,6 +5,14 @@ Rule ``phpdoc_return_self_reference``
 The type of ``@return`` annotations of methods returning a reference to itself
 must the configured one.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``replacements``.
+
 Configuration
 -------------
 
@@ -13,7 +21,7 @@ Configuration
 
 Mapping between replaced return types with new ones.
 
-Allowed types: ``array``
+Allowed types: ``array<string, string>``
 
 Default value: ``['this' => '$this', '@this' => '$this', '$self' => 'self', '@self' => 'self', '$static' => 'static', '@static' => 'static']``
 

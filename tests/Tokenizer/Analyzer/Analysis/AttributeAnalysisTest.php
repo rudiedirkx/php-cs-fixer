@@ -21,14 +21,16 @@ use PhpCsFixer\Tokenizer\Analyzer\Analysis\AttributeAnalysis;
  * @covers \PhpCsFixer\Tokenizer\Analyzer\Analysis\AttributeAnalysis
  *
  * @internal
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class AttributeAnalysisTest extends TestCase
 {
     public function testAttribute(): void
     {
         $attributes = [
-            ['start' => 3, 'end' => 12, 'name' => 'AB\\Baz'],
-            ['start' => 14, 'end' => 32, 'name' => '\\A\\B\\Qux'],
+            ['start' => 3, 'end' => 12, 'name' => 'AB\Baz'],
+            ['start' => 14, 'end' => 32, 'name' => '\A\B\Qux'],
         ];
         $analysis = new AttributeAnalysis(2, 34, 3, 34, $attributes);
 

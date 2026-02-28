@@ -27,19 +27,23 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  * @internal
  *
  * @covers \PhpCsFixer\Console\Report\FixReport\XmlReporter
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class XmlReporterTest extends AbstractReporterTestCase
 {
-    /**
-     * @var null|string
-     */
-    private static $xsd;
+    private static ?string $xsd = null;
 
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
-        self::$xsd = file_get_contents(__DIR__.'/../../../../doc/schemas/fix/xml.xsd');
+        $content = file_get_contents(__DIR__.'/../../../../doc/schemas/fix/xml.xsd');
+        if (false === $content) {
+            throw new \RuntimeException('Cannot read file.');
+        }
+
+        self::$xsd = $content;
     }
 
     public static function tearDownAfterClass(): void

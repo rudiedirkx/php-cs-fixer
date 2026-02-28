@@ -26,6 +26,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Linter\CachingLinter
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class CachingLinterTest extends TestCase
 {
@@ -41,6 +43,9 @@ final class CachingLinterTest extends TestCase
         self::assertSame($isAsync, $linter->isAsync());
     }
 
+    /**
+     * @return iterable<int, array{bool}>
+     */
     public static function provideIsAsyncCases(): iterable
     {
         yield [true];
@@ -131,7 +136,7 @@ final class CachingLinterTest extends TestCase
             public function lintFile(string $path): LintingResultInterface
             {
                 if (!isset($this->allowedLintFileCalls[$path])) {
-                    throw new \LogicException(sprintf('File "%s" should not be linted.', $path));
+                    throw new \LogicException(\sprintf('File "%s" should not be linted.', $path));
                 }
 
                 $result = $this->allowedLintFileCalls[$path];
@@ -143,7 +148,7 @@ final class CachingLinterTest extends TestCase
             public function lintSource(string $source): LintingResultInterface
             {
                 if (!isset($this->allowedLintSourceCalls[$source])) {
-                    throw new \LogicException(sprintf('File "%s" should not be linted.', $source));
+                    throw new \LogicException(\sprintf('File "%s" should not be linted.', $source));
                 }
 
                 $result = $this->allowedLintSourceCalls[$source];
@@ -156,7 +161,7 @@ final class CachingLinterTest extends TestCase
 
     private function createLintingResultDouble(): LintingResultInterface
     {
-        return new class() implements LintingResultInterface {
+        return new class implements LintingResultInterface {
             public function check(): void
             {
                 throw new \LogicException('Not implemented.');

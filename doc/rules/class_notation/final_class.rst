@@ -14,14 +14,14 @@ create two child classes, one empty if necessary: you'll gain much more fine
 grained type-hinting. If you need to mock a standalone class, create an
 interface, or maybe it's a value-object that shouldn't be mocked at all. If you
 need to extend a standalone class, create an interface and use the Composite
-pattern. If you aren't ready yet for serious OOP, go with
-FinalInternalClassFixer, it's fine.
+pattern. If these rules are too strict for you, you can use
+``FinalInternalClassFixer`` instead.
 
 Warning
 -------
 
-Using this rule is risky
-~~~~~~~~~~~~~~~~~~~~~~~~
+This rule is RISKY
+~~~~~~~~~~~~~~~~~~
 
 Risky when subclassing non-abstract classes.
 
@@ -38,6 +38,7 @@ Example #1
     <?php
    -class MyApp {}
    +final class MyApp {}
+
 References
 ----------
 

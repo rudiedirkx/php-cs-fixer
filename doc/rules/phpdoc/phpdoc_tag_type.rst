@@ -4,6 +4,14 @@ Rule ``phpdoc_tag_type``
 
 Forces PHPDoc tags to be either regular annotations or inline.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``tags``.
+
 Configuration
 -------------
 
@@ -12,7 +20,7 @@ Configuration
 
 The list of tags to fix.
 
-Allowed types: ``array``
+Allowed types: ``array<string, 'annotation'|'inline'>``
 
 Default value: ``['api' => 'annotation', 'author' => 'annotation', 'copyright' => 'annotation', 'deprecated' => 'annotation', 'example' => 'annotation', 'global' => 'annotation', 'inheritDoc' => 'annotation', 'internal' => 'annotation', 'license' => 'annotation', 'method' => 'annotation', 'package' => 'annotation', 'param' => 'annotation', 'property' => 'annotation', 'return' => 'annotation', 'see' => 'annotation', 'since' => 'annotation', 'throws' => 'annotation', 'todo' => 'annotation', 'uses' => 'annotation', 'var' => 'annotation', 'version' => 'annotation']``
 
@@ -61,7 +69,6 @@ The rule is part of the following rule sets:
 - `@Symfony <./../../ruleSets/Symfony.rst>`_ with config:
 
   ``['tags' => ['inheritDoc' => 'inline']]``
-
 
 References
 ----------

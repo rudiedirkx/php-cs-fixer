@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\StringNotation\MultilineStringToHeredocFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\StringNotation\MultilineStringToHeredocFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class MultilineStringToHeredocFixerTest extends AbstractFixerTestCase
 {
@@ -32,7 +36,7 @@ final class MultilineStringToHeredocFixerTest extends AbstractFixerTestCase
     }
 
     /**
-     * @return iterable<array{0: string, 1?: null|string}>
+     * @return iterable<string, array{0: string, 1?: null|string}>
      */
     public static function provideFixCases(): iterable
     {

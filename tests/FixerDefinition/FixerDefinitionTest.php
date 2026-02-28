@@ -22,6 +22,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\FixerDefinition\FixerDefinition
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class FixerDefinitionTest extends TestCase
 {
@@ -68,7 +70,7 @@ final class FixerDefinitionTest extends TestCase
 
     private function createCodeSampleDouble(): CodeSampleInterface
     {
-        return new class() implements CodeSampleInterface {
+        return new class implements CodeSampleInterface {
             public function getCode(): string
             {
                 throw new \LogicException('Not implemented.');

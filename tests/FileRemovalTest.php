@@ -24,6 +24,8 @@ use PhpCsFixer\FileRemoval;
  * @internal
  *
  * @covers \PhpCsFixer\FileRemoval
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class FileRemovalTest extends TestCase
 {
@@ -33,10 +35,8 @@ final class FileRemovalTest extends TestCase
      * This is necessary for testShutdownRemovesObserved files, as the setup
      * runs in a separate process to trigger the shutdown function, and
      * tearDownAfterClass is called for every separate process
-     *
-     * @var bool
      */
-    private static $removeFilesOnTearDown = true;
+    private static bool $removeFilesOnTearDown = true;
 
     public static function tearDownAfterClass(): void
     {
@@ -44,6 +44,8 @@ final class FileRemovalTest extends TestCase
             @unlink(sys_get_temp_dir().'/cs_fixer_foo.php');
             @unlink(sys_get_temp_dir().'/cs_fixer_bar.php');
         }
+
+        parent::tearDownAfterClass();
     }
 
     public function testCleanRemovesObservedFiles(): void
@@ -104,22 +106,22 @@ final class FileRemovalTest extends TestCase
         self::assertFileDoesNotExist($fs->url().'/foo.php');
     }
 
-    public function testSleep(): void
+    public function testSerialize(): void
     {
-        $this->expectException(\BadMethodCallException::class);
-        $this->expectExceptionMessage('Cannot serialize PhpCsFixer\FileRemoval');
-
         $fileRemoval = new FileRemoval();
-        $fileRemoval->__sleep();
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Cannot serialize '.FileRemoval::class);
+
+        serialize($fileRemoval);
     }
 
-    public function testWakeup(): void
+    public function testUnserialize(): void
     {
         $this->expectException(\BadMethodCallException::class);
-        $this->expectExceptionMessage('Cannot unserialize PhpCsFixer\FileRemoval');
+        $this->expectExceptionMessage('Cannot unserialize '.FileRemoval::class);
 
-        $fileRemoval = new FileRemoval();
-        $fileRemoval->__wakeup();
+        unserialize(self::createSerializedStringOfClassName(FileRemoval::class));
     }
 
     /**

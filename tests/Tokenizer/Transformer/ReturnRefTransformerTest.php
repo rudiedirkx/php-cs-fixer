@@ -23,11 +23,15 @@ use PhpCsFixer\Tokenizer\CT;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Transformer\ReturnRefTransformer
+ *
+ * @phpstan-import-type _TransformerTestExpectedKindsUnderIndex from AbstractTransformerTestCase
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class ReturnRefTransformerTest extends AbstractTransformerTestCase
 {
     /**
-     * @param array<int, int> $expectedTokens
+     * @param _TransformerTestExpectedKindsUnderIndex $expectedTokens
      *
      * @dataProvider provideProcessCases
      */
@@ -38,10 +42,13 @@ final class ReturnRefTransformerTest extends AbstractTransformerTestCase
             $expectedTokens,
             [
                 CT::T_RETURN_REF,
-            ]
+            ],
         );
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: _TransformerTestExpectedKindsUnderIndex}>
+     */
     public static function provideProcessCases(): iterable
     {
         yield [
@@ -64,10 +71,6 @@ final class ReturnRefTransformerTest extends AbstractTransformerTestCase
             [
                 3 => CT::T_RETURN_REF,
             ],
-        ];
-
-        yield [
-            '<?php $a = 1 & 2;',
         ];
 
         yield [

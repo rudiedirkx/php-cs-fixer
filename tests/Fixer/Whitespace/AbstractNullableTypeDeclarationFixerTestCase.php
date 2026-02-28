@@ -14,12 +14,19 @@ declare(strict_types=1);
 
 namespace PhpCsFixer\Tests\Fixer\Whitespace;
 
+use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Jack Cherng <jfcherng@gmail.com>
+ * @template TFixer of AbstractFixer
  *
  * @internal
+ *
+ * @extends AbstractFixerTestCase<TFixer>
+ *
+ * @author Jack Cherng <jfcherng@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 abstract class AbstractNullableTypeDeclarationFixerTestCase extends AbstractFixerTestCase
 {
@@ -31,8 +38,15 @@ abstract class AbstractNullableTypeDeclarationFixerTestCase extends AbstractFixe
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
+        yield [
+            '<?php $a instanceof static ? \DateTime::class : $c;',
+        ];
+
         yield [
             '<?php function foo(?int $param): ?int {}',
         ];
@@ -170,6 +184,9 @@ abstract class AbstractNullableTypeDeclarationFixerTestCase extends AbstractFixe
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<string, array{string, string}>
+     */
     public static function provideFix80Cases(): iterable
     {
         yield 'static return' => [

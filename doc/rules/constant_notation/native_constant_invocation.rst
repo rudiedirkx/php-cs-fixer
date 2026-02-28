@@ -6,13 +6,19 @@ Add leading ``\`` before constant invocation of internal constant to speed up
 resolving. Constant name match is case-sensitive, except for ``null``, ``false``
 and ``true``.
 
-Warning
--------
+Warnings
+--------
 
-Using this rule is risky
-~~~~~~~~~~~~~~~~~~~~~~~~
+This rule is RISKY
+~~~~~~~~~~~~~~~~~~
 
 Risky when any of the constants are namespaced or overridden.
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``exclude``,
+``fix_built_in``, ``include``, ``scope``, ``strict``.
 
 Configuration
 -------------
@@ -22,7 +28,7 @@ Configuration
 
 List of constants to ignore.
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``['null', 'false', 'true']``
 
@@ -41,7 +47,7 @@ Default value: ``true``
 
 List of additional constants to fix.
 
-Allowed types: ``array``
+Allowed types: ``list<string>``
 
 Default value: ``[]``
 
@@ -145,7 +151,6 @@ The rule is part of the following rule sets:
 - `@Symfony:risky <./../../ruleSets/SymfonyRisky.rst>`_ with config:
 
   ``['strict' => false]``
-
 
 References
 ----------

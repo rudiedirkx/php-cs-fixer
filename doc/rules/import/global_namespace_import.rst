@@ -4,6 +4,15 @@ Rule ``global_namespace_import``
 
 Imports or fully qualifies global classes/functions/constants.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following options: ``import_classes``,
+``import_constants``, ``import_functions``.
+
 Configuration
 -------------
 
@@ -12,7 +21,7 @@ Configuration
 
 Whether to import, not import or ignore global classes.
 
-Allowed values: ``false``, ``null`` and ``true``
+Allowed types: ``null`` and ``bool``
 
 Default value: ``true``
 
@@ -21,7 +30,7 @@ Default value: ``true``
 
 Whether to import, not import or ignore global constants.
 
-Allowed values: ``false``, ``null`` and ``true``
+Allowed types: ``null`` and ``bool``
 
 Default value: ``null``
 
@@ -30,7 +39,7 @@ Default value: ``null``
 
 Whether to import, not import or ignore global functions.
 
-Allowed values: ``false``, ``null`` and ``true``
+Allowed types: ``null`` and ``bool``
 
 Default value: ``null``
 
@@ -119,7 +128,6 @@ The rule is part of the following rule sets:
 - `@Symfony <./../../ruleSets/Symfony.rst>`_ with config:
 
   ``['import_classes' => false, 'import_constants' => false, 'import_functions' => false]``
-
 
 References
 ----------

@@ -17,11 +17,15 @@ namespace PhpCsFixer\Tests\Fixer\Phpdoc;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 
 /**
- * @author Ceeram <ceeram@cakephp.org>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Phpdoc\PhpdocIndentFixer>
+ *
+ * @author Ceeram <ceeram@cakephp.org>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class PhpdocIndentFixerTest extends AbstractFixerTestCase
 {
@@ -33,6 +37,9 @@ final class PhpdocIndentFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield ['<?php /** @var Foo $foo */ ?>'];
@@ -408,6 +415,17 @@ class Application
 class Dispatcher
 {
 }
+',
+        ];
+
+        yield [
+            '<?php
+$foo->bar()    /** comment */
+    ->baz();
+',
+            '<?php
+$foo->bar()/** comment */
+    ->baz();
 ',
         ];
     }

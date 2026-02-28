@@ -23,17 +23,21 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\FixerDefinition\FileSpecificCodeSample
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class FileSpecificCodeSampleTest extends TestCase
 {
     public function testDefaults(): void
     {
         $code = file_get_contents(__FILE__);
+        self::assertIsString($code);
+
         $splFileInfo = new \SplFileInfo(__FILE__);
 
         $sample = new FileSpecificCodeSample(
             $code,
-            $splFileInfo
+            $splFileInfo,
         );
 
         self::assertSame($code, $sample->getCode());
@@ -44,6 +48,8 @@ final class FileSpecificCodeSampleTest extends TestCase
     public function testConstructorSetsValues(): void
     {
         $code = file_get_contents(__FILE__);
+        self::assertIsString($code);
+
         $splFileInfo = new \SplFileInfo(__FILE__);
         $configuration = [
             'foo' => 'bar',
@@ -53,7 +59,7 @@ final class FileSpecificCodeSampleTest extends TestCase
         $sample = new FileSpecificCodeSample(
             $code,
             $splFileInfo,
-            $configuration
+            $configuration,
         );
 
         self::assertSame($code, $sample->getCode());

@@ -22,6 +22,8 @@ use PhpCsFixer\WordMatcher;
  * @internal
  *
  * @covers \PhpCsFixer\WordMatcher
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class WordMatcherTest extends TestCase
 {
@@ -37,7 +39,7 @@ final class WordMatcherTest extends TestCase
     }
 
     /**
-     * @return iterable<array{?string, string, list<string>}>
+     * @return iterable<int, array{?string, string, list<string>}>
      */
     public static function provideMatchCases(): iterable
     {

@@ -24,6 +24,8 @@ use PhpCsFixer\Tokenizer\Tokens;
  * @internal
  *
  * @covers \PhpCsFixer\Tokenizer\Analyzer\BlocksAnalyzer
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class BlocksAnalyzerTest extends TestCase
 {
@@ -39,7 +41,7 @@ final class BlocksAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{string, int, int}>
+     * @return iterable<int, array{string, int, int}>
      */
     public static function provideBlocksCases(): iterable
     {
@@ -82,7 +84,7 @@ final class BlocksAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{string, int, int}>
+     * @return iterable<int, array{string, int, int}>
      */
     public static function provideNonBlocksCases(): iterable
     {
@@ -111,7 +113,7 @@ final class BlocksAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{string, int, int}>
+     * @return iterable<int, array{string, int, int}>
      */
     public static function provideInvalidIndexCases(): iterable
     {

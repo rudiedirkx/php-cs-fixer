@@ -4,11 +4,33 @@ Rule ``group_import``
 
 There MUST be group use for the same namespaces.
 
+Warning
+-------
+
+This rule is CONFIGURABLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can configure this rule using the following option: ``group_types``.
+
+Configuration
+-------------
+
+``group_types``
+~~~~~~~~~~~~~~~
+
+Defines the order of import types.
+
+Allowed types: ``list<string>``
+
+Default value: ``['classy', 'functions', 'constants']``
+
 Examples
 --------
 
 Example #1
 ~~~~~~~~~~
+
+*Default* configuration.
 
 .. code-block:: diff
 
@@ -18,6 +40,24 @@ Example #1
    -use Foo\Bar;
    -use Foo\Baz;
    +use Foo\{Bar, Baz};
+
+Example #2
+~~~~~~~~~~
+
+With configuration: ``['group_types' => ['classy']]``.
+
+.. code-block:: diff
+
+   --- Original
+   +++ New
+    <?php
+
+   -use A\Foo;
+    use function B\foo;
+   -use A\Bar;
+   +use A\{Bar, Foo};
+    use function B\bar;
+
 References
 ----------
 

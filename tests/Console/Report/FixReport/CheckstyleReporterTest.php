@@ -26,23 +26,32 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  * @internal
  *
  * @covers \PhpCsFixer\Console\Report\FixReport\CheckstyleReporter
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class CheckstyleReporterTest extends AbstractReporterTestCase
 {
     /**
      * "checkstyle" XML schema.
-     *
-     * @var null|string
      */
-    private static $xsd;
+    private static ?string $xsd = null;
 
     public static function setUpBeforeClass(): void
     {
-        self::$xsd = file_get_contents(__DIR__.'/../../../../doc/schemas/fix/checkstyle.xsd');
+        parent::setUpBeforeClass();
+
+        $content = file_get_contents(__DIR__.'/../../../../doc/schemas/fix/checkstyle.xsd');
+        if (false === $content) {
+            throw new \RuntimeException('Cannot read file.');
+        }
+
+        self::$xsd = $content;
     }
 
     public static function tearDownAfterClass(): void
     {
+        parent::tearDownAfterClass();
+
         self::$xsd = null;
     }
 

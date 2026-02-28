@@ -24,6 +24,8 @@ use PhpCsFixer\Tests\TestCase;
  * @internal
  *
  * @covers \PhpCsFixer\ConfigurationException\InvalidFixerConfigurationException
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class InvalidFixerConfigurationExceptionTest extends TestCase
 {
@@ -34,10 +36,10 @@ final class InvalidFixerConfigurationExceptionTest extends TestCase
 
         $exception = new InvalidFixerConfigurationException(
             $fixerName,
-            $message
+            $message,
         );
 
-        self::assertSame(sprintf('[%s] %s', $fixerName, $message), $exception->getMessage());
+        self::assertSame(\sprintf('[%s] %s', $fixerName, $message), $exception->getMessage());
         self::assertSame(FixCommandExitStatusCalculator::EXIT_STATUS_FLAG_HAS_INVALID_FIXER_CONFIG, $exception->getCode());
         self::assertSame($fixerName, $exception->getFixerName());
         self::assertNull($exception->getPrevious());
@@ -52,10 +54,10 @@ final class InvalidFixerConfigurationExceptionTest extends TestCase
         $exception = new InvalidFixerConfigurationException(
             $fixerName,
             $message,
-            $previous
+            $previous,
         );
 
-        self::assertSame(sprintf('[%s] %s', $fixerName, $message), $exception->getMessage());
+        self::assertSame(\sprintf('[%s] %s', $fixerName, $message), $exception->getMessage());
         self::assertSame(FixCommandExitStatusCalculator::EXIT_STATUS_FLAG_HAS_INVALID_FIXER_CONFIG, $exception->getCode());
         self::assertSame($fixerName, $exception->getFixerName());
         self::assertSame($previous, $exception->getPrevious());

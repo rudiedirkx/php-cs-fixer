@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Casing\ClassReferenceNameCasingFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Casing\ClassReferenceNameCasingFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class ClassReferenceNameCasingFixerTest extends AbstractFixerTestCase
 {
@@ -31,6 +35,9 @@ final class ClassReferenceNameCasingFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield [
@@ -197,14 +204,14 @@ namespace Foo {
                 \Closure::bind(fn () => null, null, new class {});
 
                 Foo\Bar::bind(fn () => null, null, new class {});
-                \A\B\\Bar::bind(fn () => null, null, new class {});
+                \A\B\Bar::bind(fn () => null, null, new class {});
             ',
             '<?php
                 CLOSURE::bind(fn () => null, null, new class {});
                 \CLOSURE::bind(fn () => null, null, new class {});
 
                 Foo\Bar::bind(fn () => null, null, new class {});
-                \A\B\\Bar::bind(fn () => null, null, new class {});
+                \A\B\Bar::bind(fn () => null, null, new class {});
             ',
         ];
 
@@ -257,7 +264,7 @@ use Sonata\\Exporter\\Writer\\EXCEPTION;
     }
 
     /**
-     * @return iterable<array{0: string, 1?: string}>
+     * @return iterable<int, array{0: string, 1?: string}>
      */
     public static function provideFix80Cases(): iterable
     {
@@ -276,6 +283,9 @@ use Sonata\\Exporter\\Writer\\EXCEPTION;
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<array{0: string, 1?: string}>
+     */
     public static function provideFix81Cases(): iterable
     {
         yield [

@@ -18,11 +18,15 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 use PhpCsFixer\WhitespacesFixerConfig;
 
 /**
- * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
- *
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Whitespace\LineEndingFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Whitespace\LineEndingFixer>
+ *
+ * @author Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class LineEndingFixerTest extends AbstractFixerTestCase
 {
@@ -34,6 +38,9 @@ final class LineEndingFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<array{0: string, 1?: string}>
+     */
     public static function provideFixCases(): iterable
     {
         yield from self::provideCommonCases();
@@ -82,6 +89,9 @@ final class LineEndingFixerTest extends AbstractFixerTestCase
         $this->doTest($expected, $input);
     }
 
+    /**
+     * @return iterable<array{string, string}>
+     */
     public static function provideWithWhitespacesConfigCases(): iterable
     {
         yield from array_map(static fn (array $case): array => array_reverse($case), self::provideCommonCases());
@@ -97,7 +107,10 @@ final class LineEndingFixerTest extends AbstractFixerTestCase
         ];
     }
 
-    private static function provideCommonCases(): iterable
+    /**
+     * @return array<int|string, array{string, string}>
+     */
+    private static function provideCommonCases(): array
     {
         return [
             'T_OPEN_TAG' => [

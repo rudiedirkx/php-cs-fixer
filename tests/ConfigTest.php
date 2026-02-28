@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace PhpCsFixer\Tests;
 
 use PhpCsFixer\Config;
+use PhpCsFixer\Config\NullRuleCustomisationPolicy;
 use PhpCsFixer\ConfigurationException\InvalidConfigurationException;
 use PhpCsFixer\Console\Application;
 use PhpCsFixer\Console\Command\FixCommand;
@@ -23,6 +24,9 @@ use PhpCsFixer\Finder;
 use PhpCsFixer\Fixer\ArrayNotation\NoWhitespaceBeforeCommaInArrayFixer;
 use PhpCsFixer\Fixer\ControlStructure\IncludeFixer;
 use PhpCsFixer\Fixer\FixerInterface;
+use PhpCsFixer\Runner\Parallel\ParallelConfig;
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+use PhpCsFixer\Tests\Fixtures\ExternalRuleSet\ExampleRuleSet;
 use PhpCsFixer\ToolInfo;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -32,9 +36,23 @@ use Symfony\Component\Finder\Finder as SymfonyFinder;
  * @internal
  *
  * @covers \PhpCsFixer\Config
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class ConfigTest extends TestCase
 {
+    public function testFutureMode(): void
+    {
+        $futureMode = getenv('PHP_CS_FIXER_FUTURE_MODE');
+        putenv('PHP_CS_FIXER_FUTURE_MODE=1');
+
+        $config = new Config('test');
+        self::assertSame('test (future mode)', $config->getName());
+        self::assertArrayHasKey('@PER-CS', $config->getRules());
+
+        putenv('PHP_CS_FIXER_FUTURE_MODE='.$futureMode);
+    }
+
     public function testConfigRulesUsingSeparateMethod(): void
     {
         $config = new Config();
@@ -42,9 +60,10 @@ final class ConfigTest extends TestCase
             $config,
             [
                 'rules' => 'cast_spaces,statement_indentation',
+                'config' => ConfigurationResolver::IGNORE_CONFIG_FILE,
             ],
-            getcwd(),
-            new ToolInfo()
+            (string) getcwd(),
+            new ToolInfo(),
         );
 
         self::assertSame(
@@ -52,7 +71,7 @@ final class ConfigTest extends TestCase
                 'cast_spaces' => true,
                 'statement_indentation' => true,
             ],
-            $configResolver->getRules()
+            $configResolver->getRules(),
         );
     }
 
@@ -63,9 +82,10 @@ final class ConfigTest extends TestCase
             $config,
             [
                 'rules' => '{"array_syntax": {"syntax": "short"}, "cast_spaces": true}',
+                'config' => ConfigurationResolver::IGNORE_CONFIG_FILE,
             ],
-            getcwd(),
-            new ToolInfo()
+            (string) getcwd(),
+            new ToolInfo(),
         );
 
         self::assertSame(
@@ -75,7 +95,7 @@ final class ConfigTest extends TestCase
                 ],
                 'cast_spaces' => true,
             ],
-            $configResolver->getRules()
+            $configResolver->getRules(),
         );
     }
 
@@ -88,9 +108,10 @@ final class ConfigTest extends TestCase
             $config,
             [
                 'rules' => '{blah',
+                'config' => ConfigurationResolver::IGNORE_CONFIG_FILE,
             ],
-            getcwd(),
-            new ToolInfo()
+            (string) getcwd(),
+            new ToolInfo(),
         );
         $configResolver->getRules();
     }
@@ -113,21 +134,24 @@ final class ConfigTest extends TestCase
             [
                 'decorated' => false,
                 'verbosity' => OutputInterface::VERBOSITY_VERY_VERBOSE,
-            ]
+            ],
         );
         self::assertStringMatchesFormat(
-            sprintf('%%ALoaded config custom_config_test from "%s".%%A', $customConfigFile),
-            $commandTester->getDisplay(true)
+            \sprintf('%%ALoaded config custom_config_test from "%s".%%A', $customConfigFile),
+            $commandTester->getDisplay(true),
         );
     }
 
     public function testThatFinderWorksWithDirSetOnConfig(): void
     {
         $config = new Config();
+        $finder = $config->getFinder();
+
+        \assert($finder instanceof Finder); // Config::getFinder() ensures only `iterable`
 
         $items = iterator_to_array(
-            $config->getFinder()->in(__DIR__.'/Fixtures/FinderDirectory'),
-            false
+            $finder->in(__DIR__.'/Fixtures/FinderDirectory'),
+            false,
         );
 
         self::assertCount(1, $items);
@@ -145,7 +169,7 @@ final class ConfigTest extends TestCase
 
         $items = iterator_to_array(
             $config->getFinder(),
-            false
+            false,
         );
 
         self::assertCount(1, $items);
@@ -161,7 +185,7 @@ final class ConfigTest extends TestCase
 
         $items = iterator_to_array(
             $config->getFinder(),
-            false
+            false,
         );
 
         self::assertCount(1, $items);
@@ -206,6 +230,31 @@ final class ConfigTest extends TestCase
         self::assertSame($expected, $config->getCustomFixers());
     }
 
+    /**
+     * @return iterable<int, array{list<FixerInterface>, iterable<FixerInterface>}>
+     */
+    public static function provideRegisterCustomFixersCases(): iterable
+    {
+        $fixers = [
+            new NoWhitespaceBeforeCommaInArrayFixer(),
+            new IncludeFixer(),
+        ];
+
+        yield [$fixers, $fixers];
+
+        yield [$fixers, new \ArrayIterator($fixers)];
+    }
+
+    public function testRegisterCustomRuleSets(): void
+    {
+        $ruleset = new ExampleRuleSet(__METHOD__);
+
+        $config = new Config();
+        $config->registerCustomRuleSets([$ruleset]);
+
+        self::assertSame([$ruleset], $config->getCustomRuleSets());
+    }
+
     public function testConfigDefault(): void
     {
         $config = new Config();
@@ -221,6 +270,7 @@ final class ConfigTest extends TestCase
         self::assertFalse($config->getRiskyAllowed());
         self::assertSame(['@PSR12' => true], $config->getRules());
         self::assertTrue($config->getUsingCache());
+        self::assertSame(filter_var(getenv('PHP_CS_FIXER_IGNORE_ENV'), \FILTER_VALIDATE_BOOL), $config->getUnsupportedPhpVersionAllowed());
 
         $finder = $config->getFinder();
         self::assertInstanceOf(Finder::class, $finder);
@@ -246,18 +296,18 @@ final class ConfigTest extends TestCase
 
         $config->setUsingCache(false);
         self::assertFalse($config->getUsingCache());
-    }
 
-    public static function provideRegisterCustomFixersCases(): iterable
-    {
-        $fixers = [
-            new NoWhitespaceBeforeCommaInArrayFixer(),
-            new IncludeFixer(),
-        ];
+        $config->setUnsupportedPhpVersionAllowed(true);
+        self::assertTrue($config->getUnsupportedPhpVersionAllowed());
 
-        yield [$fixers, $fixers];
+        self::assertNull($config->getRuleCustomisationPolicy());
 
-        yield [$fixers, new \ArrayIterator($fixers)];
+        $ruleCustomisationPolicy = new NullRuleCustomisationPolicy();
+        $config->setRuleCustomisationPolicy($ruleCustomisationPolicy);
+        self::assertSame($ruleCustomisationPolicy, $config->getRuleCustomisationPolicy());
+
+        $config->setRuleCustomisationPolicy(null);
+        self::assertNull($config->getRuleCustomisationPolicy());
     }
 
     public function testConfigConstructorWithName(): void
@@ -267,5 +317,23 @@ final class ConfigTest extends TestCase
 
         self::assertSame($anonymousConfig->getName(), 'default');
         self::assertSame($namedConfig->getName(), 'foo');
+    }
+
+    public function testConfigWithDefaultParallelConfig(): void
+    {
+        $config = new Config();
+        $defaultParallelConfig = ParallelConfigFactory::detect();
+
+        self::assertSame($defaultParallelConfig->getMaxProcesses(), $config->getParallelConfig()->getMaxProcesses());
+    }
+
+    public function testConfigWithExplicitParallelConfig(): void
+    {
+        $config = new Config();
+        $config->setParallelConfig(new ParallelConfig(5, 10, 15));
+
+        self::assertSame(5, $config->getParallelConfig()->getMaxProcesses());
+        self::assertSame(10, $config->getParallelConfig()->getFilesPerProcess());
+        self::assertSame(15, $config->getParallelConfig()->getProcessTimeout());
     }
 }

@@ -21,8 +21,9 @@ use PhpCsFixer\Fixer\PhpUnit\PhpUnitTargetVersion;
 use PhpCsFixer\FixerConfiguration\DeprecatedFixerOptionInterface;
 use PhpCsFixer\FixerFactory;
 use PhpCsFixer\RuleSet\RuleSet;
-use PhpCsFixer\RuleSet\RuleSetDescriptionInterface;
+use PhpCsFixer\RuleSet\RuleSetDefinitionInterface;
 use PhpCsFixer\RuleSet\RuleSets;
+use PhpCsFixer\Tests\Test\TestCaseUtils;
 use PhpCsFixer\Tests\TestCase;
 
 /**
@@ -33,6 +34,8 @@ use PhpCsFixer\Tests\TestCase;
  * @group legacy
  *
  * @covers \PhpCsFixer\RuleSet\RuleSet
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class RuleSetTest extends TestCase
 {
@@ -62,14 +65,15 @@ final class RuleSetTest extends TestCase
             $fixers[$fixer->getName()] = $fixer;
         }
 
-        self::assertArrayHasKey($ruleName, $fixers, sprintf('RuleSet "%s" contains unknown rule.', $setName));
+        self::assertArrayHasKey($ruleName, $fixers, \sprintf('RuleSet "%s" contains unknown rule.', $setName));
 
         if (true === $ruleConfig) {
             return; // rule doesn't need configuration.
         }
 
+        \assert(\array_key_exists($ruleName, $fixers));
         $fixer = $fixers[$ruleName];
-        self::assertInstanceOf(ConfigurableFixerInterface::class, $fixer, sprintf('RuleSet "%s" contains configuration for rule "%s" which cannot be configured.', $setName, $ruleName));
+        self::assertInstanceOf(ConfigurableFixerInterface::class, $fixer, \sprintf('RuleSet "%s" contains configuration for rule "%s" which cannot be configured.', $setName, $ruleName));
 
         try {
             $fixer->configure($ruleConfig); // test fixer accepts the configuration
@@ -85,13 +89,17 @@ final class RuleSetTest extends TestCase
      */
     public function testThatDefaultConfigIsNotPassed(string $setName, string $ruleName, $ruleConfig): void
     {
-        $factory = new FixerFactory();
-        $factory->registerBuiltInFixers();
-        $factory->useRuleSet(new RuleSet([$ruleName => true]));
-
-        $fixer = current($factory->getFixers());
+        $fixer = TestCaseUtils::getFixerByName($ruleName);
 
         if (!$fixer instanceof ConfigurableFixerInterface || \is_bool($ruleConfig)) {
+            $this->expectNotToPerformAssertions();
+
+            return;
+        }
+
+        if (\in_array($ruleName, [
+            'type_declaration_spaces', // @TODO v4: default value for this rule will changed, remove it when they are changed
+        ], true)) {
             $this->expectNotToPerformAssertions();
 
             return;
@@ -110,24 +118,25 @@ final class RuleSetTest extends TestCase
         self::assertNotSame(
             $this->sortNestedArray($defaultConfig, $ruleName),
             $this->sortNestedArray($ruleConfig, $ruleName),
-            sprintf('Rule "%s" (in RuleSet "%s") has default config passed.', $ruleName, $setName)
+            \sprintf('Rule "%s" (in RuleSet "%s") has default config passed.', $ruleName, $setName),
         );
     }
 
     /**
+     * @param array<string, mixed>|true $ruleConfig
+     *
      * @dataProvider provideAllRulesFromSetsCases
      */
-    public function testThatThereIsNoDeprecatedFixerInRuleSet(string $setName, string $ruleName): void
+    public function testThatThereIsNoDeprecatedFixerInRuleSet(string $setName, string $ruleName, $ruleConfig): void
     {
-        $factory = new FixerFactory();
-        $factory->registerBuiltInFixers();
-        $factory->useRuleSet(new RuleSet([$ruleName => true]));
+        $fixer = TestCaseUtils::getFixerByName($ruleName);
 
-        $fixer = current($factory->getFixers());
-
-        self::assertNotInstanceOf(DeprecatedFixerInterface::class, $fixer, sprintf('RuleSet "%s" contains deprecated rule "%s".', $setName, $ruleName));
+        self::assertNotInstanceOf(DeprecatedFixerInterface::class, $fixer, \sprintf('RuleSet "%s" contains deprecated rule "%s".', $setName, $ruleName));
     }
 
+    /**
+     * @return iterable<string, array{string, string, array<string, mixed>|true}>
+     */
     public static function provideAllRulesFromSetsCases(): iterable
     {
         foreach (RuleSets::getSetDefinitionNames() as $setName) {
@@ -184,96 +193,41 @@ final class RuleSetTest extends TestCase
                 'line_ending' => true,
                 'strict_comparison' => true,
             ],
-            $ruleSet->getRules()
+            $ruleSet->getRules(),
         );
     }
 
     public function testResolveRulesWithNestedSet(): void
     {
         $ruleSet = new RuleSet([
-            '@PSR2' => true,
+            '@PHP70Migration' => true,
             'strict_comparison' => true,
         ]);
 
         self::assertSameRules(
             [
-                'blank_line_after_namespace' => true,
-                'class_definition' => true,
-                'constant_case' => true,
-                'control_structure_braces' => true,
-                'control_structure_continuation_position' => true,
-                'braces_position' => true,
-                'elseif' => true,
-                'encoding' => true,
-                'full_opening_tag' => true,
-                'function_declaration' => true,
-                'indentation_type' => true,
-                'line_ending' => true,
-                'lowercase_keywords' => true,
-                'method_argument_space' => ['attribute_placement' => 'ignore', 'on_multiline' => 'ensure_fully_multiline'],
-                'no_break_comment' => true,
-                'no_closing_tag' => true,
-                'no_multiple_statements_per_line' => true,
-                'no_space_around_double_colon' => true,
-                'no_spaces_after_function_name' => true,
-                'no_trailing_whitespace' => true,
-                'no_trailing_whitespace_in_comment' => true,
-                'single_blank_line_at_eof' => true,
-                'single_class_element_per_statement' => ['elements' => ['property']],
-                'single_import_per_statement' => true,
-                'single_line_after_imports' => true,
-                'spaces_inside_parentheses' => true,
-                'statement_indentation' => true,
+                'array_syntax' => true,
                 'strict_comparison' => true,
-                'switch_case_semicolon_to_colon' => true,
-                'switch_case_space' => true,
-                'visibility_required' => ['elements' => ['method', 'property']],
+                'ternary_to_null_coalescing' => true,
             ],
-            $ruleSet->getRules()
+            $ruleSet->getRules(),
         );
     }
 
     public function testResolveRulesWithDisabledSet(): void
     {
         $ruleSet = new RuleSet([
-            '@PSR2' => true,
-            '@PSR1' => false,
-            'encoding' => true,
+            '@PHP70Migration' => true,
+            '@PHP54Migration' => false,
+            'strict_comparison' => true,
         ]);
 
         self::assertSameRules(
             [
-                'blank_line_after_namespace' => true,
-                'constant_case' => true,
-                'class_definition' => true,
-                'control_structure_braces' => true,
-                'control_structure_continuation_position' => true,
-                'braces_position' => true,
-                'elseif' => true,
-                'encoding' => true,
-                'function_declaration' => true,
-                'indentation_type' => true,
-                'line_ending' => true,
-                'lowercase_keywords' => true,
-                'method_argument_space' => ['attribute_placement' => 'ignore', 'on_multiline' => 'ensure_fully_multiline'],
-                'no_break_comment' => true,
-                'no_closing_tag' => true,
-                'no_multiple_statements_per_line' => true,
-                'no_spaces_after_function_name' => true,
-                'no_space_around_double_colon' => true,
-                'no_trailing_whitespace' => true,
-                'no_trailing_whitespace_in_comment' => true,
-                'single_blank_line_at_eof' => true,
-                'single_class_element_per_statement' => ['elements' => ['property']],
-                'single_import_per_statement' => true,
-                'single_line_after_imports' => true,
-                'spaces_inside_parentheses' => true,
-                'statement_indentation' => true,
-                'switch_case_semicolon_to_colon' => true,
-                'switch_case_space' => true,
-                'visibility_required' => ['elements' => ['method', 'property']],
+                'strict_comparison' => true,
+                'ternary_to_null_coalescing' => true,
             ],
-            $ruleSet->getRules()
+            $ruleSet->getRules(),
         );
     }
 
@@ -313,14 +267,17 @@ final class RuleSetTest extends TestCase
         self::assertCount(
             0,
             $fixerNames,
-            sprintf(
+            \sprintf(
                 'Set should only contain %s fixers, got: \'%s\'.',
                 $safe ? 'safe' : 'risky',
-                implode('\', \'', $fixerNames)
-            )
+                implode('\', \'', $fixerNames),
+            ),
         );
     }
 
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>|bool>, bool}>
+     */
     public static function provideRiskyRulesInSetCases(): iterable
     {
         foreach (RuleSets::getSetDefinitionNames() as $name) {
@@ -345,7 +302,7 @@ final class RuleSetTest extends TestCase
         $this->expectExceptionMessageMatches('#^Nested rule set "@PSR1" configuration must be a boolean\.$#');
 
         new RuleSet(
-            ['@PSR1' => ['@PSR2' => 'no']]
+            ['@PSR1' => ['@PSR2' => 'no']],
         );
     }
 
@@ -362,7 +319,7 @@ final class RuleSetTest extends TestCase
     /**
      * @dataProvider provideDuplicateRuleConfigurationInSetDefinitionsCases
      */
-    public function testDuplicateRuleConfigurationInSetDefinitions(RuleSetDescriptionInterface $set): void
+    public function testDuplicateRuleConfigurationInSetDefinitions(RuleSetDefinitionInterface $set): void
     {
         $rules = [];
         $setRules = [];
@@ -398,16 +355,19 @@ final class RuleSetTest extends TestCase
             return;
         }
 
-        self::fail(sprintf(
+        self::fail(\sprintf(
             '"%s" defines rules the same as it extends from: %s',
             $set->getName(),
             implode(', ', $duplicates),
         ));
     }
 
+    /**
+     * @return iterable<string, array{RuleSetDefinitionInterface}>
+     */
     public static function provideDuplicateRuleConfigurationInSetDefinitionsCases(): iterable
     {
-        foreach (RuleSets::getSetDefinitions() as $name => $set) {
+        foreach (RuleSets::getBuiltInSetDefinitions() as $name => $set) {
             yield $name => [$set];
         }
     }
@@ -418,12 +378,15 @@ final class RuleSetTest extends TestCase
     public function testPhpUnitTargetVersionHasSet(string $version): void
     {
         self::assertContains(
-            sprintf('@PHPUnit%sMigration:risky', str_replace('.', '', $version)),
+            \sprintf('@PHPUnit%sMigration:risky', str_replace('.', 'x', $version)),
             RuleSets::getSetDefinitionNames(),
-            sprintf('PHPUnit target version %s is missing its set in %s.', $version, RuleSet::class)
+            \sprintf('PHPUnit target version %s is missing its set in %s.', $version, RuleSet::class),
         );
     }
 
+    /**
+     * @return iterable<int, array{string}>
+     */
     public static function providePhpUnitTargetVersionHasSetCases(): iterable
     {
         foreach ((new \ReflectionClass(PhpUnitTargetVersion::class))->getConstants() as $constant) {
@@ -490,7 +453,7 @@ final class RuleSetTest extends TestCase
             if (\is_array($value)) {
                 $this->doSort(
                     $data[$key],
-                    $path.('' !== $path ? '.' : '').$key
+                    $path.('' !== $path ? '.' : '').$key,
                 );
             }
         }

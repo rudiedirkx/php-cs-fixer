@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace PhpCsFixer\Tests\Runner;
 
 use PhpCsFixer\Cache\CacheManagerInterface;
-use PhpCsFixer\FixerFileProcessedEvent;
+use PhpCsFixer\Runner\Event\FileProcessed;
 use PhpCsFixer\Runner\FileFilterIterator;
 use PhpCsFixer\Tests\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -24,6 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  *
  * @covers \PhpCsFixer\Runner\FileFilterIterator
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class FileFilterIteratorTest extends TestCase
 {
@@ -33,15 +35,14 @@ final class FileFilterIteratorTest extends TestCase
     public function testAccept(int $repeat): void
     {
         $file = __FILE__;
-        $content = file_get_contents($file);
         $events = [];
 
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
-            FixerFileProcessedEvent::NAME,
-            static function (FixerFileProcessedEvent $event) use (&$events): void {
+            FileProcessed::NAME,
+            static function (FileProcessed $event) use (&$events): void {
                 $events[] = $event;
-            }
+            },
         );
 
         $fileInfo = new \SplFileInfo($file);
@@ -49,7 +50,7 @@ final class FileFilterIteratorTest extends TestCase
         $filter = new FileFilterIterator(
             new \ArrayIterator(array_fill(0, $repeat, $fileInfo)),
             $eventDispatcher,
-            $this->createCacheManagerDouble(true)
+            $this->createCacheManagerDouble(true),
         );
 
         self::assertCount(0, $events);
@@ -61,7 +62,7 @@ final class FileFilterIteratorTest extends TestCase
     }
 
     /**
-     * @return iterable<array{int}>
+     * @return iterable<int, array{int}>
      */
     public static function provideAcceptCases(): iterable
     {
@@ -75,71 +76,69 @@ final class FileFilterIteratorTest extends TestCase
     public function testEmitSkipEventWhenCacheNeedFixingFalse(): void
     {
         $file = __FILE__;
-        $content = file_get_contents($file);
         $events = [];
 
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
-            FixerFileProcessedEvent::NAME,
-            static function (FixerFileProcessedEvent $event) use (&$events): void {
+            FileProcessed::NAME,
+            static function (FileProcessed $event) use (&$events): void {
                 $events[] = $event;
-            }
+            },
         );
 
         $filter = new FileFilterIterator(
             new \ArrayIterator([new \SplFileInfo($file)]),
             $eventDispatcher,
-            $this->createCacheManagerDouble(false)
+            $this->createCacheManagerDouble(false),
         );
 
         self::assertCount(0, $filter);
         self::assertCount(1, $events);
 
-        /** @var FixerFileProcessedEvent $event */
+        /** @var FileProcessed $event */
         $event = reset($events);
 
-        self::assertInstanceOf(FixerFileProcessedEvent::class, $event);
-        self::assertSame(FixerFileProcessedEvent::STATUS_SKIPPED, $event->getStatus());
+        self::assertInstanceOf(FileProcessed::class, $event);
+        self::assertSame(FileProcessed::STATUS_SKIPPED, $event->getStatus());
     }
 
     public function testIgnoreEmptyFile(): void
     {
         $file = __DIR__.'/../Fixtures/empty.php';
-        $content = file_get_contents($file);
         $events = [];
 
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
-            FixerFileProcessedEvent::NAME,
-            static function (FixerFileProcessedEvent $event) use (&$events): void {
+            FileProcessed::NAME,
+            static function (FileProcessed $event) use (&$events): void {
                 $events[] = $event;
-            }
+            },
         );
 
         $filter = new FileFilterIterator(
             new \ArrayIterator([new \SplFileInfo($file)]),
             $eventDispatcher,
-            $this->createCacheManagerDouble(true)
+            $this->createCacheManagerDouble(true),
         );
 
         self::assertCount(0, $filter);
         self::assertCount(1, $events);
 
-        /** @var FixerFileProcessedEvent $event */
+        /** @var FileProcessed $event */
         $event = reset($events);
 
-        self::assertInstanceOf(FixerFileProcessedEvent::class, $event);
-        self::assertSame(FixerFileProcessedEvent::STATUS_SKIPPED, $event->getStatus());
+        self::assertInstanceOf(FileProcessed::class, $event);
+        self::assertSame(FileProcessed::STATUS_SKIPPED, $event->getStatus());
     }
 
     public function testIgnore(): void
     {
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
-            FixerFileProcessedEvent::NAME,
+            FileProcessed::NAME,
             static function (): void {
                 throw new \Exception('No event expected.');
-            }
+            },
         );
 
         $filter = new FileFilterIterator(
@@ -148,7 +147,7 @@ final class FileFilterIteratorTest extends TestCase
                 new \SplFileInfo('__INVALID__'),
             ]),
             $eventDispatcher,
-            $this->createCacheManagerDouble(true)
+            $this->createCacheManagerDouble(true),
         );
 
         self::assertCount(0, $filter);
@@ -157,12 +156,11 @@ final class FileFilterIteratorTest extends TestCase
     public function testWithoutDispatcher(): void
     {
         $file = __FILE__;
-        $content = file_get_contents($file);
 
         $filter = new FileFilterIterator(
             new \ArrayIterator([new \SplFileInfo($file)]),
             null,
-            $this->createCacheManagerDouble(false)
+            $this->createCacheManagerDouble(false),
         );
 
         self::assertCount(0, $filter);
@@ -173,14 +171,14 @@ final class FileFilterIteratorTest extends TestCase
         $filter = new FileFilterIterator(
             new \ArrayIterator([__FILE__]), // @phpstan-ignore-line we want this check for contexts without static analysis
             null,
-            $this->createCacheManagerDouble(true)
+            $this->createCacheManagerDouble(true),
         );
 
         $this->expectException(
-            \RuntimeException::class
+            \RuntimeException::class,
         );
         $this->expectExceptionMessageMatches(
-            '#^Expected instance of "\\\SplFileInfo", got "string"\.$#'
+            '#^Expected instance of "\\\SplFileInfo", got "string"\.$#',
         );
 
         iterator_to_array($filter);
@@ -202,7 +200,7 @@ final class FileFilterIteratorTest extends TestCase
         $filter = new FileFilterIterator(
             new \ArrayIterator([$link, $file]),
             null,
-            $this->createCacheManagerDouble(true)
+            $this->createCacheManagerDouble(true),
         );
 
         $files = iterator_to_array($filter);
@@ -226,6 +224,11 @@ final class FileFilterIteratorTest extends TestCase
             }
 
             public function setFile(string $file, string $fileContent): void
+            {
+                throw new \LogicException('Not implemented.');
+            }
+
+            public function setFileHash(string $file, string $hash): void
             {
                 throw new \LogicException('Not implemented.');
             }

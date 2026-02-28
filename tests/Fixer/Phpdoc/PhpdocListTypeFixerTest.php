@@ -20,6 +20,10 @@ use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
  * @internal
  *
  * @covers \PhpCsFixer\Fixer\Phpdoc\PhpdocListTypeFixer
+ *
+ * @extends AbstractFixerTestCase<\PhpCsFixer\Fixer\Phpdoc\PhpdocListTypeFixer>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise.
  */
 final class PhpdocListTypeFixerTest extends AbstractFixerTestCase
 {
@@ -32,7 +36,7 @@ final class PhpdocListTypeFixerTest extends AbstractFixerTestCase
     }
 
     /**
-     * @return iterable<array{string, 1?: string}>
+     * @return iterable<int, array{string, 1?: string}>
      */
     public static function provideFixCases(): iterable
     {
@@ -91,6 +95,23 @@ final class PhpdocListTypeFixerTest extends AbstractFixerTestCase
         yield [
             '<?php /** @var list<int<1, 10>> */',
             '<?php /** @var array<int<1, 10>> */',
+        ];
+
+        yield [<<<'EOD'
+            <?php
+            /** @var list<Foo> */
+            /** @var \SplFixedArray<Foo> */
+            /** @var \KůňArray<Foo> */
+            /** @var \My_Array<Foo> */
+            /** @var \My2Array<Foo> */
+            EOD, <<<'EOD'
+            <?php
+            /** @var array<Foo> */
+            /** @var \SplFixedArray<Foo> */
+            /** @var \KůňArray<Foo> */
+            /** @var \My_Array<Foo> */
+            /** @var \My2Array<Foo> */
+            EOD,
         ];
     }
 }
